@@ -193,6 +193,16 @@ function handleCleanStartJobSucceeded(event){
     let spans = destroyResourcesButton.querySelectorAll('span');
     spans[0].classList.add('spinner-border');
     spans[1].innerText = DESTROYING;
+    destroyToProceedNotification.classList.add('d-none');
+    destroyResourcesButton.disabled = true;
+    scrollToBottom();
+}
+
+function handleCleanStartJobFailed(event){
+    executorFailed.classList.remove('d-none');
+    let spans = destroyResourcesButton.querySelectorAll('span');
+    spans[0].classList.remove('spinner-border');
+    spans[1].innerText = DESTROY;
     destroyResourcesButton.disabled = true;
     scrollToBottom();
 }
@@ -255,6 +265,21 @@ function handleEvalFailedSucceeded(event){
 
     accordions.forEach(a => {
         const description = a.querySelector('.accordion-button').innerText;
+        const externalAccordionButton = a.querySelector('.accordion-button');
+        const stepsFromEvent = event.data.validation_steps;
+        externalAccordionButton.classList.remove(BG_DANGER_SUBTLE);
+        externalAccordionButton.classList.remove(BG_SUCCESS_SUBTLE);
+        let externalButtonColor = BG_DANGER_SUBTLE;
+
+        stepsFromEvent.forEach(step => {
+            if (description.includes(step.description)) {
+//                debugger;
+                if (step.meta.rules.length === 0) {
+                    externalButtonColor = BG_SUCCESS_SUBTLE;
+                }
+            }
+        });
+        externalAccordionButton.classList.add(externalButtonColor);
 
         const accordionItems = a.querySelectorAll('.accordion-item');
         accordionItems.forEach(item => {
@@ -262,7 +287,7 @@ function handleEvalFailedSucceeded(event){
             const content = item.querySelector('.inner').innerText;
             button.classList.remove(BG_DANGER_SUBTLE);
             button.classList.remove(BG_SUCCESS_SUBTLE);
-            if (isStored(description, content, event.data.validation_steps)){
+            if (ruleIsStored(description, content, event.data.validation_steps)){
                 button.classList.add(BG_DANGER_SUBTLE);
             } else {
                 button.classList.add(BG_SUCCESS_SUBTLE);

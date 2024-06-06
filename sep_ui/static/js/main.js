@@ -274,6 +274,8 @@ function handleIncomingEvent(eventData) {
     } else if (event.stage == EVAL_STAGE && (event.event == FAILED_EVENT || event.event == SUCCEEDED_EVENT)) {
         handleEvalFailedSucceeded(event);
         scrollToBottom();
+    } else if (event.stage == CLEAN_START_JOB_STAGE && event.event == FAILED_EVENT){
+        handleCleanStartJobFailed(event);
     } else if (event.stage == CLEAN_START_JOB_STAGE && event.event == SUCCEEDED_EVENT){
         handleCleanStartJobSucceeded(event);
     } else if (event.stage == AI_SUMMARY_STAGE && event.event == BEGAN_EVENT) {

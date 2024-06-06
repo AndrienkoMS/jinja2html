@@ -157,7 +157,7 @@ function updateElements(updateSourceData,
   console.log('Elements updated');
 }
 
-function isStored(description, ruleText, stepsFromEvent){
+function ruleIsStored(description, ruleText, stepsFromEvent){
     let result = false;
 
     stepsFromEvent.forEach((step) => {

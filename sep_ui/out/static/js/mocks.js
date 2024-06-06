@@ -64,6 +64,20 @@ const mock_event_str = JSON.stringify(mock_event);
 
 mock_events_data = {
     "items": [
+//        {
+//            "action": "setup_start_job:failed",
+//            "data": {}
+//        },
+//        {
+//           "action": "cleanup:failed",
+//           "data": {
+//                "log": "",
+//                "passed": "failed",
+//                "score": 0,
+//                "status": null,
+//                "unblock_feedback": null
+//            }
+//        },
         {
             "action": "setup_start_job:succeeded",
             "data": {}
@@ -146,6 +160,16 @@ mock_events_data = {
 //            "action": "verify_start_job:failed",
 //            "data": {}
 //        },
+//         {
+//           "action": "cleanup:succeeded",
+//           "data": {
+//                "log": "s3://epm-cmtr-dev-tf-state/Maksym_Andriienko/AWS/196241772369/iam_assume_role/2024_06_01_111928/pipeline.log",
+//                "passed": "failed",
+//                "score": 0,
+//                "status": null,
+//                "unblock_feedback": null
+//            }
+//          },
         {
             "action": "eval:began",
             "data": {}
@@ -161,13 +185,13 @@ mock_events_data = {
                   "index": 1,
                   "meta": {
                     "rules": [
-                      {
-                        "article": "AWS X-Ray helps to visualize...",
-                        "description": "Lambda has active tracing disabled",
-                        "impact": "If active tracing ...",
-                        "remediation": "To turn on active tracing:\n  1. Open the AWS ...",
-                        "severity": "Low"
-                      },
+//                      {
+//                        "article": "AWS X-Ray helps to visualize...",
+//                        "description": "Lambda has active tracing disabled",
+//                        "impact": "If active tracing ...",
+//                        "remediation": "To turn on active tracing:\n  1. Open the AWS ...",
+//                        "severity": "Low"
+//                      },
                     ],
                   }
                 },
@@ -189,64 +213,69 @@ mock_events_data = {
                 ]
             }
         },
+//        {
+//           "action": "clean_start_job:failed",
+//           "data": {}
+//        },
+//        {
+//           "action": "cleanup:failed",
+//           "data": {
+//                "log": "",
+//                "passed": "failed",
+//                "score": 0,
+//                "status": null,
+//                "unblock_feedback": null
+//           }
+//        },
         {
            "action": "clean_start_job:succeeded",
            "data": {}
         },
-//        {
-//            "action": "eval:ready",
-//            "data": {}
-//        },
-//{
-//            "action": "eval:failed",
-//            "data": {
-//                "result": "failed",
-//                "score": 0,
-//                "validation_steps": [
-//                {
-//                  "description": "Verify if the resource with name 'cmtr-be17689b-lambda-test' violates rules region",
-//                  "index": 1,
-//                  "meta": {
-//                    "rules": [
-//                      {
-//                        "article": "12312AWS X-Ray helps to visualize...",
-//                        "description": "Lambda has active tracing disabled",
-//                        "impact": "If active tracing ...",
-//                        "remediation": "To turn on active tracing:\n  1. Open the AWS ...",
-//                        "severity": "Low"
-//                      },
-//                      {
-//                        "article": "22222222This control checks ...",
-//                        "description": "Lambda functions ...",
-//                        "impact": "When security ...",
-//                        "remediation": "To update ...",
-//                        "severity": "Info"
-//                      },
-//                    ],
-//                  }
-//                },
-//                {
-//                  "description": "Verify if the resource with name 'cmtr-be17689b-s3-test' violates rules",
-//                  "index": 2,
-//                  "meta": {
-//                    "rules": [
-//                      {
-//                        "article": "For storing sensitive ...",
-//                        "description": "Lambda environment ...",
-//                        "impact": "Without encrypting ...",
-//                        "remediation": "1. Use the ...",
-//                        "severity": "Medium"
-//                      },
-//                    ]
-//                  }
-//                },
-//                ]
-//            }
-//        },
-//        {
-//            "action": "setup_start_job:succeeded",
-//            "data": {}
-//        },
+        {
+            "action": "eval:ready",
+            "data": {}
+        },
+        {
+            "action": "eval:succeeded",
+            "data": {
+                "result": "failed",
+                "score": 0,
+                "validation_steps": [
+                {
+                  "description": "Verify if the resource with name 'cmtr-be17689b-lambda-test' violates rules region",
+                  "index": 1,
+                  "meta": {
+                    "rules": [],
+                  }
+                },
+                {
+                  "description": "Verify if the resource with name 'cmtr-be17689b-s3-test' violates rules",
+                  "index": 2,
+                  "meta": {
+                    "rules": []
+                  }
+                },
+                ]
+            }
+        },
+        {
+           "action": "clean_start_job:succeeded",
+           "data": {}
+        },
+        {
+           "action": "cleanup:began",
+           "data": {}
+        },
+        {
+           "action": "cleanup:succeeded",
+           "data": {
+                "log": "s3://epm-cmtr-dev-tf-state/Maksym_Andriienko/AWS/196241772369/iam_assume_role/2024_06_01_111928/pipeline.log",
+                "passed": "failed",
+                "score": 0,
+                "status": null,
+                "unblock_feedback": null
+           }
+        },
 
     ]
 };
