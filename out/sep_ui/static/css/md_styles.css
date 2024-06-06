@@ -1,0 +1,23 @@
+pre {
+  background-color: #f4f4f4;
+  border-radius: 3px;
+  color: #333;
+  font-family: "Courier New", Courier, monospace;
+  overflow: auto;
+  padding: 16px;
+}
+
+pre > code {
+  background-color: transparent;
+  border: none;
+  font-size: 1em;
+  font-family: inherit;
+  line-height: 1.4em;
+  margin: 0;
+  white-space: pre;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

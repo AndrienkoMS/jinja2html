@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloud Mentor Task</title>
+  {% block custom_head %}{% endblock %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="../../static/css/md_styles.css">
+</head>
+
+<body>
+  <div class="container-xl my-4">
+    <div id="creditsModalBlock">{% block credits_modal %}{% endblock %}</div>
+    <div id="firstTemporaryCredits" class="mb-3">{% block first_temporary_сredits %}{% endblock %}</div>
+    <div id="taskDefinition" class="mb-3">
+      <div class="h2" align="center">
+        {{ task_title|safe }}
+      </div>
+      <div id="definitionContent" class="container-fluid p-4 rounded bg-secondary-subtle">
+        {{ task_definition_content|safe }}
+      </div>
+      {% if guide_link %}
+        <div class="container my-3 p-3 rounded bg-secondary-subtle">
+          <div class="d-flex justify-content-between row">
+            <div class="col-lg-1 d-flex justify-content-center align-items-center p-0">
+              <i class="fas fa-solid fa-file-alt fa-3x" style="color: #ffc107"></i>
+            </div>
+            <div class="col-lg-11 align-self-center p-0">
+              You can explore the step-by-step instructions
+              <strong><a href="{{ guide_link }}" target="_blank">here</a></strong>.
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% block second_temporary_сredits %}{% endblock %}
+      {% block custom_definition_notice %}{% endblock %}
+    </div>
+    <div id="liveAlertPlaceholder"></div>
+    {% block custom_start_form %}{% endblock %}
+    <div id="deploymentLoader" class="mb-3 d-none">
+      <p class="lead text-muted">Please wait while we prepare the resources needed for this task.
+        It can take several minutes...</p>
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="resetTaskModal" tabindex="-1" aria-labelledby="resetTaskModal"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="resetTaskModalLabel">Important Notice</h1>
+          </div>
+          <div class="modal-body">
+            <p>Dear User,</p>
+            <p>
+              It has been 30 minutes since you started the task. If you encounter any issues with the system,
+              please click "Reset task" to abort the current task. This will initiate the cleaning process for
+              the task's infrastructure resources in your account.
+            </p>
+            <p>
+              Please don't try to run new task. Restart current task and if you'll face that issue
+              again contact our support team.
+            </p>
+            <p>
+              If you are uncertain, you may close the dialog. It will appear in 30 minutes again.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button id="resetTaskButton" type="button" class="btn btn-outline-danger"
+              data-bs-dismiss="modal">Reset task</button>
+            <button id="closeDialogButton" type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% block custom_validation_form %}{% endblock %}
+    {% block custom_task_validations %}{% endblock %}
+    {% block custom_ai_summary %}{% endblock %}
+    {% block executor_failed %}{% endblock %}
+    {% block custom_task_validation_failed %}{% endblock %}
+    {% block destroy_to_proceed %}{% endblock %}
+    {% block destroyment_loader %}{% endblock %}
+    <div id="destroymentNotification" class="mb-3 d-none">
+      <h2 class="mb-3">Task resources status:</h2>
+      <div class="accordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button id="destroymentNotificationButton"
+              class="accordion-button collapsed bg-danger-subtle"
+              type="button" data-bs-toggle="collapse" data-bs-target="#destroument-accordion"
+              aria-expanded="false">See more</button>
+          </h2>
+          <div id="destroument-accordion" class="accordion-collapse collapse">
+            <div id="destroymentContent" class="accordion-body" style="white-space: pre-wrap;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% block feedback %}{% endblock %}
+    {% block restart_task %}{% endblock %}
+    <div id="restartLoader" class="mb-3 d-none">
+      <p class="lead text-muted">Restarting...</p>
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+  <script src="../static/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+   {% block custom_script %}{% endblock %}
+</body>
+
+</html>
