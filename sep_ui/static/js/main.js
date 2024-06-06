@@ -236,8 +236,6 @@ function handleIncomingEvent(eventData) {
     // todo dispatch here
     if (event.stage == ONBOARD_STAGE){
         handleOnboard(event);
-    } else if (event.stage == CLEAN_START_JOB_STAGE){
-        handleCleanStartJob(event);
     } else if (event.stage == INIT_STAGE){
         taskStartForm.classList.add('d-none');
         deploymentLoader.classList.remove('d-none');
@@ -276,6 +274,8 @@ function handleIncomingEvent(eventData) {
     } else if (event.stage == EVAL_STAGE && (event.event == FAILED_EVENT || event.event == SUCCEEDED_EVENT)) {
         handleEvalFailedSucceeded(event);
         scrollToBottom();
+    } else if (event.stage == CLEAN_START_JOB_STAGE && event.event == SUCCEEDED_EVENT){
+        handleCleanStartJobSucceeded(event);
     } else if (event.stage == AI_SUMMARY_STAGE && event.event == BEGAN_EVENT) {
         handleAISummaryBegan(event);
     } else if (event.stage == AI_SUMMARY_STAGE && (event.event == FAILED_EVENT || event.event == SUCCEEDED_EVENT)) {

@@ -188,17 +188,13 @@ function handleVerifyStartJobFailedSucceeded(event){
     }
 }
 
-function handleCleanStartJob(event){
-    // we are here when (event.stage == CLEAN_START_JOB_STAGE)
-    if (event.event == SUCCEEDED_EVENT){
-        taskValidationsFailed.classList.add('d-none');
-        let spans = destroyResourcesButton.querySelectorAll('span');
-        spans[0].classList.add('spinner-border');
-        spans[1].innerText = DESTROYING;
-        destroyResourcesButton.disabled = true;
-        destroyToProceedNotification.classList.add('d-none');
-        scrollToBottom();
-    }
+function handleCleanStartJobSucceeded(event){
+    taskValidationsFailed.classList.add('d-none');
+    let spans = destroyResourcesButton.querySelectorAll('span');
+    spans[0].classList.add('spinner-border');
+    spans[1].innerText = DESTROYING;
+    destroyResourcesButton.disabled = true;
+    scrollToBottom();
 }
 
 function handleEvalReady(event) {
@@ -521,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 console.log('sre js ended!');
 console.log("Events fetched:", mock_events_data);
 //replayEvents(mock_events_data);
-setTimeout( () => replayEvents(mock_events_data), 1000);
+setTimeout( () => replayEvents(mock_events_data), 2000);
 // if it wouldn't work can try next:
 //window.handleEvalFailedSucceeded = function
 //<script async defer src="{{ static('js/syndicate.js') }}"></script>
