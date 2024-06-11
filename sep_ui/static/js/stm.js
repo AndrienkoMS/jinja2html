@@ -84,6 +84,7 @@ let evalErrorMessage;
 
 let dynamicParameters;
 
+
 function copyToClipboard(id) {
   var element = document.querySelector(`#${CSS.escape(id)}`);
 
@@ -92,6 +93,7 @@ function copyToClipboard(id) {
     navigator.clipboard.writeText(text);
   }
 }
+
 
 function generateSyndicateConfigCommand(event, lineBreakSymbol) {
     return `syndicate generate config --name "dev" ${lineBreakSymbol}
@@ -105,12 +107,14 @@ function generateSyndicateConfigCommand(event, lineBreakSymbol) {
     --session_token "${event.data.executionSessionToken}"`;
 }
 
+
 function generateSyndicateCredentialsText(event) {
     return `expiration: ${event.data.executionExpiration}
 temp_aws_access_key_id: ${event.data.executionAccessKeyId}
 temp_aws_secret_access_key: ${event.data.executionSecretKey}
 temp_aws_session_token: ${event.data.executionSessionToken}`;
 }
+
 
 function showExecutionCredentials(event){
     executionRegion.value = event.data.executionRegion;
@@ -127,6 +131,7 @@ function showExecutionCredentials(event){
     executionCreditsModal.show();
 }
 
+
 function showValidationCredentials(event){
     validationManagementConsoleURL.setAttribute('href', event.data.validationManagementConsoleURL);
     validationAccessKeyId.value = event.data.validationAccessKeyId;
@@ -134,6 +139,7 @@ function showValidationCredentials(event){
     validationSessionToken.value = event.data.validationSessionToken;
     validationCreditsModal.show();
 }
+
 
 function handleOngoingTask(event){
     startTaskButton.style.display = 'block';
@@ -146,8 +152,8 @@ function handleOngoingTask(event){
     spans[1].innerText = VERIFY;
 }
 
-function handleVerifyStartJob(event){
-    // we are here when (event.stage == VERIFY_START_JOB_STAGE)
+
+function handleVerifyStartJobFailedSucceeded(event){
     if (event.event == SUCCEEDED_EVENT){
         startTaskButton.style.display = 'none';
         verifyTaskButton.style.display = 'block';
@@ -170,8 +176,8 @@ function handleVerifyStartJob(event){
     }
 }
 
-function handleCleanStartJob(event){
-    // we are here when (event.stage == CLEAN_START_JOB_STAGE)
+
+function handleCleanStartJobSucceeded(event){
     if (event.event == SUCCEEDED_EVENT){
         taskValidationsFailed.classList.add('d-none');
         let spans = destroyResourcesButton.querySelectorAll('span');
@@ -182,6 +188,12 @@ function handleCleanStartJob(event){
         scrollToBottom();
     }
 }
+
+
+function handleCleanStartJobFailed(event){
+    return;
+}
+
 
 function handleEvalReady(event) {
     let spans = destroyResourcesButton.querySelectorAll('span');
@@ -194,15 +206,16 @@ function handleEvalReady(event) {
     spans2[0].classList.remove('spinner-border');
     spans2[1].innerText = ABORT;
     repositoryInput.disabled = false;
-
     verifyTaskButton.disabled = false;
     abortTaskButton.disabled = false;
     destroyResourcesButton.disabled = true;
 }
 
+
 function handleSetupSucceeded(event) {
     return;
 }
+
 
 function handleEvalFailedSucceeded(event){
     let container = taskValidations.querySelector(`#${TASK_VALIDATIONS_ACCORDION_ID}`);
@@ -235,6 +248,7 @@ function handleEvalFailedSucceeded(event){
     }
 }
 
+
 function handleEvalError(event){
     let spans = verifyTaskButton.querySelectorAll('span');
     spans[0].classList.remove('spinner-border');
@@ -249,9 +263,11 @@ function handleEvalError(event){
     destroyResourcesButton.disabled = false;
 }
 
+
 function handleAISummaryBegan(event){
     AISummaryLoader.classList.remove('d-none');
 }
+
 
 function handleAISummaryFailedSucceeded(event){
     AISummaryLoader.classList.add('d-none');
@@ -267,6 +283,7 @@ function handleAISummaryFailedSucceeded(event){
     AISummaryAccordion.scrollIntoView({ behavior: 'smooth' });
 }
 
+
 function handleAISummaryError(event){
     AISummaryLoader.classList.add('d-none');
     let newAlert = AISummaryErrorAlertTemplate.cloneNode(true);
@@ -274,14 +291,17 @@ function handleAISummaryError(event){
     AISummaryErrorAlertPlaceholder.appendChild(newAlert);
 }
 
+
 function handleCleanupBegan(event){
     destroyToProceedNotification.classList.add('d-none');
     AISummarySwitch.disabled = true;
 }
 
+
 function handleCleanupStatus(event){
     return;
 }
+
 
 function handleCleanupFailed(event){
     repositoryInput.disabled = true;
@@ -300,6 +320,7 @@ function handleCleanupFailed(event){
         feedbackThank.classList.remove('d-none');
     }
 }
+
 
 function handleCleanupSucceeded(event){
     verifyTaskButton.disabled = true;
@@ -321,14 +342,17 @@ function handleCleanupSucceeded(event){
     }
 }
 
+
 function customSubmitFeedbackButton(){
     restartTask.classList.remove('d-none');
     feedbackThank.classList.remove('d-none');
 }
 
+
 function customRestartTaskButton(){
     AISummaryAccordion.classList.add('d-none');
 }
+
 
 function isValidRepositoryInput(repositoryInputValue) {
     if (repositoryInputValue.startsWith('http')) {
@@ -337,6 +361,7 @@ function isValidRepositoryInput(repositoryInputValue) {
     wrongRepositoryModal.show();
     return false;
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     firstExecutionTempCredits = document.getElementById(FIRST_EXECUTION_TEMP_CREDITS_BUTTON_ID);
@@ -402,20 +427,20 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         let repositoryInputValue = taskValidationForm.querySelector('#repositoryInput').value;
         if (!isValidRepositoryInput(repositoryInputValue)) return;
-        dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
-        if (dynamicParameters) {
-            dynamicParameters.repository = taskValidationForm.querySelector('#repositoryInput').value;
-            body = buildBody('start_task', {
-                type: VERIFY_START_JOB_STAGE,
-                dynamic_parameters: dynamicParameters
-            });
-            console.log("buildBody: ", body)
-            this.ws.send(body);
+        let dynamicParameters;
+        if (window.dynamicData && window.dynamicData.verify_params) {
+          dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+        } else {
+            dynamicParameters = {};
         }
-        else {
-            console.log('Dynamic parameters error');
-            return;
-        }
+        dynamicParameters.repository = taskValidationForm.querySelector('#repositoryInput').value;
+        body = buildBody('start_task', {
+            type: VERIFY_START_JOB_STAGE,
+            dynamic_parameters: dynamicParameters
+        });
+        console.log("buildBody: ", body)
+        this.ws.send(body);
+
         startTaskButton.style.display = 'none';
         verifyTaskButton.style.display = 'block';
         verifyTaskButton.disabled = true;
@@ -434,19 +459,19 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         let repositoryInputValue = taskValidationForm.querySelector('#repositoryInput').value;
         if (!isValidRepositoryInput(repositoryInputValue)) return;
-        dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+        let dynamicParameters;
+        if (window.dynamicData && window.dynamicData.verify_params) {
+          dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+        } else {
+            dynamicParameters = {};
+        }
         console.log('dynamicParameters: ', dynamicParameters);
-        if (dynamicParameters) {
-            dynamicParameters.repository = taskValidationForm.querySelector('#repositoryInput').value;
-            this.ws.send(buildBody('send_input', {
-                type: VERIFY_START_JOB_STAGE,
-                dynamic_parameters: dynamicParameters
-            }));
-        }
-        else {
-            console.log('Dynamic parameters error');
-            return;
-        }
+        dynamicParameters.repository = taskValidationForm.querySelector('#repositoryInput').value;
+        this.ws.send(buildBody('send_input', {
+            type: VERIFY_START_JOB_STAGE,
+            dynamic_parameters: dynamicParameters
+        }));
+
         verifyTaskButton.disabled = true;
         repositoryInput.disabled = true;
         abortTaskButton.disabled = true;
@@ -503,11 +528,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     console.log('dynamicData', window.dynamicData);
-    appendChildElements(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        appendChildElements(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+    } else {
+        console.log("Dynamic verify parameters are not provided")
+    }
 });
 
 // must be runned after all js is loaded
-setTimeout( () => fetchAndReplayEvents(), 1000);
+//setTimeout( () => fetchAndReplayEvents(), 1000);
+
+console.log('stm js ended!');
+console.log("Events fetched:", mock_events_data);
+//replayEvents(mock_events_data);
+setTimeout( () => replayEvents(mock_events_data), 2000);
 
 // if it wouldn't work can try next:
 //window.handleEvalFailedSucceeded = function
