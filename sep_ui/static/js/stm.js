@@ -23,6 +23,9 @@ const VALIDATION_MANAGEMENT_CONSOLE_URL = 'validationManagementConsoleURL';
 const VALIDATION_ACCESS_KEY_ID_ID = 'validationAccessKeyId';
 const VALIDATION_SECRET_ACCESS_KEY_ID = 'validationSecretAccessKey';
 const VALIDATION_SESSION_TOKEN_ID = 'validationSessionToken';
+const VALIDATION_LINUX_CREDS_ID = 'validationLinuxCreds';
+const VALIDATION_WINDOWS_CREDS_ID = 'validationWindowsCreds';
+const VALIDATION_POWERSHELL_CREDS_ID = 'validationPowerShellCreds';
 const EVAL_ERROR_MESSAGE_ID = 'evalErrorMessage';
 
 const EXECUTION_REGION_ID = 'executionRegion';
@@ -66,6 +69,9 @@ let executionSecretKey;
 let executionSessionToken;
 let executionPrefix;
 let executionSuffix;
+let validationLinuxCreds;
+let validationWindowsCreds;
+let validationPowerShellCreds;
 let syndicateGenerateLinux;
 let syndicateGenerateWindows;
 let syndicateGeneratePowerShell;
@@ -83,16 +89,6 @@ let taskValidationsFailedCloseButton;
 let evalErrorMessage;
 
 let dynamicParameters;
-
-
-function copyToClipboard(id) {
-  var element = document.querySelector(`#${CSS.escape(id)}`);
-
-  if (element) {
-    var text = element.tagName.toLowerCase() === "input" ? element.value : element.innerText;
-    navigator.clipboard.writeText(text);
-  }
-}
 
 
 function generateSyndicateConfigCommand(event, lineBreakSymbol) {
@@ -137,6 +133,9 @@ function showValidationCredentials(event){
     validationAccessKeyId.value = event.data.validationAccessKeyId;
     validationSecretAccessKey.value = event.data.validationSecretAccessKey;
     validationSessionToken.value = event.data.validationSessionToken;
+    validationLinuxCreds.innerText = generateLinuxEnvCommands(event);
+    validationWindowsCreds.innerText = generateWindowsEnvCommands(event);
+    validationPowerShellCreds.innerText = generatePowerShellEnvCommands(event);
     validationCreditsModal.show();
 }
 
@@ -150,6 +149,9 @@ function handleOngoingTask(event){
     let spans = verifyTaskButton.querySelectorAll('span');
     spans[0].classList.remove('spinner-border');
     spans[1].innerText = VERIFY;
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'enable');
+    }
 }
 
 
@@ -173,6 +175,9 @@ function handleVerifyStartJobFailedSucceeded(event){
         spans[0].classList.remove('spinner-border');
         spans[1].innerText = VERIFY;
         scrollToBottom();
+    }
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
     }
 }
 
@@ -209,6 +214,14 @@ function handleEvalReady(event) {
     verifyTaskButton.disabled = false;
     abortTaskButton.disabled = false;
     destroyResourcesButton.disabled = true;
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'enable');
+    }
+}
+
+
+function handleEvalBegan(event){
+    return;
 }
 
 
@@ -294,7 +307,6 @@ function handleAISummaryError(event){
 
 function handleCleanupBegan(event){
     destroyToProceedNotification.classList.add('d-none');
-    AISummarySwitch.disabled = true;
 }
 
 
@@ -330,7 +342,6 @@ function handleCleanupSucceeded(event){
     spans[0].classList.remove('spinner-border');
     spans[1].innerText = DESTROY;
     destroymentContent.innerHTML = SUCCESS_CLEANUP_MESSAGE;
-//    let data = JSON.parse(event.data);
     let data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     if (data.unblock_feedback) {
         console.log('Unblocking feedback fields');
@@ -359,6 +370,9 @@ function isValidRepositoryInput(repositoryInputValue) {
         return true;
     }
     wrongRepositoryModal.show();
+	if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'enable');
+    }
     return false;
 }
 
@@ -373,6 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
     validationAccessKeyId = document.getElementById(VALIDATION_ACCESS_KEY_ID_ID);
     validationSecretAccessKey = document.getElementById(VALIDATION_SECRET_ACCESS_KEY_ID);
     validationSessionToken = document.getElementById(VALIDATION_SESSION_TOKEN_ID);
+    validationLinuxCreds = document.getElementById(VALIDATION_LINUX_CREDS_ID);
+    validationWindowsCreds = document.getElementById(VALIDATION_WINDOWS_CREDS_ID);
+    validationPowerShellCreds = document.getElementById(VALIDATION_POWERSHELL_CREDS_ID);
     validationCreditsModalCloseButton = document.getElementById(VALIDATION_CREDITS_MODAL_CLOSE_BUTTON_ID);
     executionCreditsModal = new bootstrap.Modal(document.getElementById(EXECUTION_CREDITS_MODAL_ID), {});
     executionRegion = document.getElementById(EXECUTION_REGION_ID);
@@ -449,6 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let spans = verifyTaskButton.querySelectorAll('span');
         spans[0].classList.add('spinner-border');
         spans[1].innerText = VERIFYING;
+        if (window.dynamicData && window.dynamicData.verify_params) {
+            toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+        }
     });
     passwordVisibility.addEventListener('click', (e) => {
         const type = repositoryInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -479,6 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
         spans[0].classList.add('spinner-border');
         spans[1].innerText = VERIFYING;
         executorFailed.classList.add('d-none');
+        if (window.dynamicData && window.dynamicData.verify_params) {
+            toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+        }
     });
     abortTaskButton.addEventListener('click', (e) => {
         abortTaskButton.disabled = true;
@@ -487,6 +510,9 @@ document.addEventListener('DOMContentLoaded', () => {
         taskFeedback.querySelector('fieldset').disabled = false;
         taskFeedback.classList.remove('d-none');
         scrollToBottom();
+        if (window.dynamicData && window.dynamicData.verify_params) {
+            toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+        }
     });
     destroyResourcesButton.addEventListener('click', (e) => {
         taskValidationsFailed.classList.add('d-none');
@@ -531,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.dynamicData && window.dynamicData.verify_params) {
         appendChildElements(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
     } else {
-        console.log("Dynamic verify parameters are not provided")
+        console.log("No verify parameters");
     }
 });
 
@@ -539,9 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
 //setTimeout( () => fetchAndReplayEvents(), 1000);
 
 console.log('stm js ended!');
-console.log("Events fetched:", mock_events_data);
-//replayEvents(mock_events_data);
-setTimeout( () => replayEvents(mock_events_data), 2000);
+console.log("Events fetched:", mock_events_stm_data);
+setTimeout( () => replayEvents(mock_events_stm_data), 2000);
 
 // if it wouldn't work can try next:
 //window.handleEvalFailedSucceeded = function

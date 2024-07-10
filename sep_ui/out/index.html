@@ -4,266 +4,42 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Cloud Mentor Task</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet"/>
-<link href="../static/css/sre.css" rel="stylesheet"/>
 <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" rel="stylesheet"/>
 <link href="../../static/css/md_styles.css" rel="stylesheet"/>
 </head>
 <body>
 <div class="container-xl my-4">
-<div id="creditsModalBlock">
-<!-- Bootstrap modal -->
-<div aria-hidden="true" aria-labelledby="credentialsModalLabel" class="modal fade" id="validationCreditsModal" role="dialog" tabindex="-1">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="credentialsModalLabel">SandBox
-                    credentials</h5>
-</div>
-<div class="modal-body">
-<p>
-                    Use any of the following credentials to access AWS resources
-                    programmatically or from the AWS CLI. You can retrieve new
-                    credentials as often as needed.
-                </p>
-<hr/>
-<div class="console-url">
-<a class="btn btn-link p-0" href="" id="validationManagementConsoleURL" rel="noopener noreferrer" target="_blank">Management
-                        console
-                    </a>
-</div>
-<hr/>
-<div class="d-flex justify-content-between" id="copyValidationAccessKeyId">
-<label class="left-container p-2" for="validationAccessKeyId" style="flex-basis: 45%;"><b>AWS Access Key ID:</b></label>
-<input class="individual-entry p-2" disabled="" id="validationAccessKeyId" style="flex-basis: 45%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('validationAccessKeyId')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyValidationSecretAccessKey">
-<label class="left-container p-2" for="validationSecretAccessKey" style="flex-basis: 45%;"><b>AWS Secret Access
-                        Key:</b></label>
-<input class="individual-entry p-2" disabled="" id="validationSecretAccessKey" style="flex-basis: 45%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('validationSecretAccessKey')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyValidationSessionToken">
-<label class="left-container p-2" for="validationSessionToken" style="flex-basis: 45%;"><b>AWS Session
-                        Token:</b></label>
-<input class="individual-entry p-2" disabled="" id="validationSessionToken" style="flex-basis: 45%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('validationSessionToken')" style="cursor: pointer;" title="Copy"></i>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" data-dismiss="modal" id="validationCreditsModalCloseButton" type="button">Close
-                </button>
-</div>
-</div>
-</div>
-</div>
-<!-- Bootstrap modal -->
-<div aria-hidden="true" aria-labelledby="executionModalLabel" class="modal fade" id="executionCreditsModal" role="dialog" tabindex="-1">
-<div class="modal-dialog modal-dialog-scrollable modal-lg">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="executionModalLabel">Sandbox
-                    credentials</h5>
-</div>
-<nav>
-<div class="nav nav-tabs" id="nav-tab" role="tablist">
-<a aria-controls="nav-generate-config" aria-selected="true" class="nav-link active" data-bs-toggle="tab" href="#nav-generate-config" id="nav-config-syndicate-tab" role="tab">Config Syndicate
-                    </a>
-<a aria-controls="nav-update-credentials" aria-selected="false" class="nav-link" data-bs-toggle="tab" href="#nav-update-credentials" id="nav-update-credentials-tab" role="tab">Update Credentials
-                    </a>
-</div>
-</nav>
-<div class="modal-body">
-<div class="tab-content" id="nav-tabContent">
-<div aria-labelledby="nav-config-syndicate-tab" class="tab-pane fade show active" id="nav-generate-config" role="tabpanel">
-<p>The task needs Syndicate for resource deployment. To
-                            configure it properly, run the <b>syndicate generate
-                            config</b> command, as is shown in the sample below:</p>
-<ul class="nav nav-tabs">
-<li class="nav-item">
-<a class="nav-link active" data-bs-toggle="tab" href="#linux">macOS and Linux</a>
-</li>
-<li class="nav-item">
-<a class="nav-link" data-bs-toggle="tab" href="#windows">Windows</a>
-</li>
-<li class="nav-item">
-<a class="nav-link" data-bs-toggle="tab" href="#powershell">PowerShell</a>
-</li>
-</ul>
-<div class="tab-content">
-<div class="tab-pane fade show active" id="linux">
-<div class="position-relative">
-<pre class="chroma" data-placement="top" data-toggle="tooltip" id="syndicateGenerateLinux" style="white-space: pre-wrap;" title="Click to copy this command"></pre>
-<i class="fas fa-copy position-absolute top-0 end-0 p-2" onclick="copyToClipboard('syndicateGenerateLinux')" style="cursor: pointer;"></i>
-</div>
-</div>
-<div class="tab-pane fade" id="windows">
-<div class="position-relative">
-<pre class="chroma" data-placement="top" data-toggle="tooltip" id="syndicateGenerateWindows" style="white-space: pre-wrap;" title="Click to copy this command"></pre>
-<i class="fas fa-copy position-absolute top-0 end-0 p-2" onclick="copyToClipboard('syndicateGenerateWindows')" style="cursor: pointer;"></i>
-</div>
-</div>
-<div class="tab-pane fade" id="powershell">
-<div class="position-relative">
-<pre class="chroma" data-placement="top" data-toggle="tooltip" id="syndicateGeneratePowerShell" style="white-space: pre-wrap;" title="Click to copy this command"></pre>
-<i class="fas fa-copy position-absolute top-0 end-0 p-2" onclick="copyToClipboard('syndicateGeneratePowerShell')" style="cursor: pointer;"></i>
-</div>
-</div>
-</div>
-<p>The command needs the following parameters:</p>
-<div class="d-flex justify-content-between" id="copyExecutionRegion">
-<label class="left-container p-2" for="executionRegion" style="flex-basis: 35%;"><b>--region</b></label>
-<input class="individual-entry p-2" disabled="" id="executionRegion" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="center" data-toggle="tooltip" onclick="copyToClipboard('executionRegion')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyExecutionBucket">
-<label class="left-container p-2" for="executionBucket" style="flex-basis: 35%;"><b>--bundle_bucket_name</b></label>
-<input class="individual-entry p-2" disabled="" id="executionBucket" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('executionBucket')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyExecutionAccessKeyId">
-<label class="left-container p-2" for="executionAccessKeyId" style="flex-basis: 35%;"><b>--access_key</b></label>
-<input class="individual-entry p-2" disabled="" id="executionAccessKeyId" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('executionAccessKeyId')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyExecutionSecretKey">
-<label class="left-container p-2" for="executionSecretKey" style="flex-basis: 35%;"><b>--secret_key</b></label>
-<input class="individual-entry p-2" disabled="" id="executionSecretKey" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('executionSecretKey')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyExecutionSessionToken">
-<label class="left-container p-2" for="executionSessionToken" style="flex-basis: 35%;"><b>--session_token</b></label>
-<input class="individual-entry p-2" disabled="" id="executionSessionToken" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('executionSessionToken')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<div class="d-flex justify-content-between" id="copyExecutionPrefix">
-<label class="left-container p-2" for="executionPrefix" style="flex-basis: 35%;"><b>--prefix</b></label>
-<input class="individual-entry p-2" disabled="" id="executionPrefix" style="flex-basis: 65%;" type="text"/>
-<i class="fas fa-copy ml-auto p-2" data-placement="top" data-toggle="tooltip" onclick="copyToClipboard('executionPrefix')" style="cursor: pointer;" title="Copy"></i>
-</div>
-<p class="mt-2">The output is:</p>
-<pre>Syndicate initialization has been completed.
-Set SDCT_CONF:
-Unix: export SDCT_CONF=/Users/$user/temp/syndicate-project/.syndicate-config-personal-development-account
-Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-personal-development-account</pre>
-<p>The output provides samples of the command to set the
-                            environment variable SDCT_CONF required by
-                            aws-syndicate to operate. Copy and execute one of
-                            them, based on your OS.</p>
-<hr/>
-<h4>Using Syndicate Effectively</h4>
-<p>Once everything has been correctly set up, you as a
-                            student can leverage the capabilities of Syndicate
-                            for the deployment of various resources. <a href="https://github.com/epam/aws-syndicate/wiki/6.-Available-Framework-Commands" target="_blank">Available
-                                commands</a>.</p>
-<h4>Resource Management and Cost Efficiency</h4>
-<p>It is important to remember that once you've
-                            completed your tasks, you should clean up the
-                            deployed resources. This practice not only ensures a
-                            tidy workspace but also prevents any unnecessary
-                            costs being incurred for resources left running on
-                            AWS. Find the respective command in the "Cleaning a
-                            bundle" block below.</p>
-<h4>Sandbox Account Auto-Cleaner</h4>
-<p>On your student sandbox account, we have an
-                            autocleaner feature in place. This automatic
-                            function cleans up resources that are older than two
-                            and a half hours.</p>
-<hr/>
-<p></p><h4>Cleaning a Bundle</h4>
-<p>To clean all the deployed lambdas and resources,
-                            execute (bundle name to clean will be resolved):</p>
-<div class="position-relative">
-<pre class="chroma" data-placement="top" data-toggle="tooltip" id="syndicateCleanCommand" style="white-space: pre-wrap;" title="Click to copy this command">syndicate clean</pre>
-<i class="fas fa-copy position-absolute top-0 end-0 p-2" onclick="copyToClipboard('syndicateCleanCommand')" style="cursor: pointer;"></i>
-</div>
-<p>You should see a message like:</p>
-<pre>AWS resources were removed.</pre>
-</div>
-<div aria-labelledby="nav-update-credentials-tab" class="tab-pane fade" id="nav-update-credentials" role="tabpanel">
-<p>To update credentials, change the following
-                            parameters in your `syndicate.yml` file.</p>
-<div class="position-relative">
-<pre class="chroma" id="syndicateUpdateCredentials" style="white-space: pre-wrap;"></pre>
-<i class="fas fa-copy position-absolute top-0 end-0 p-2" onclick="copyToClipboard('syndicateUpdateCredentials')" style="cursor: pointer;"></i>
-</div>
-</div>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" data-dismiss="modal" id="executionCreditsModalCloseButton" type="button">Close
-                </button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="mb-3" id="firstTemporaryCredits">
-<div class="container-fluid p-2 rounded bg-secondary-subtle">
-<div class="row d-flex justify-content-between">
-<div class="col-lg-1 d-flex justify-content-center align-items-center p-2">
-<i class="fas fa-solid fa-key fa-3x" style="color: #ffc107;"></i>
-</div>
-<div class="col-lg-7 align-self-center p-2">You may obtain temporary
-            credentials to inspect the AWS infrastructure here.
-        </div>
-<div class="col-lg-2 d-flex align-items-center justify-content-center ml-auto p-2">
-<button class="btn btn-warning" id="firstTempCreditsButton">Get
-                Credentials
-            </button>
-</div>
-</div>
-</div>
-</div>
+<div id="creditsModalBlock"></div>
+<div class="mb-3" id="firstTemporaryCredits"></div>
 <div class="mb-3" id="taskDefinition">
 <div align="center" class="h2">
 </div>
 <div class="container-fluid p-4 rounded bg-secondary-subtle" id="definitionContent">
 </div>
-<div class="mt-3 mb-3 d-none" id="secondTemporaryCredits">
-<div class="container-fluid p-2 rounded bg-secondary-subtle">
-<div class="row d-flex justify-content-between">
-<div class="col-lg-1 d-flex justify-content-center align-items-center p-2">
-<i class="fas fa-solid fa-key fa-3x" style="color: #ffc107;"></i>
-</div>
-<div class="col-lg-7 align-self-center p-2">You may obtain temporary
-                credentials to inspect the AWS infrastructure here.
-            </div>
-<div class="col-lg-2 d-flex align-items-center justify-content-center ml-auto p-2">
-<button class="btn btn-warning" id="secondTempCreditsButton">Get
-                    Credentials
-                </button>
-</div>
-</div>
-</div>
-</div>
-<div class="mb-3" id="definitionNotice">
-<h2>Task verification</h2>
-<div class="container-fluid p-4 rounded bg-primary-subtle" id="definitionNoticeContent">
-<h4 style="color: #004570;">Verification resource naming</h4>
-        The goal of task verification is to make sure that the infrastructure
-        created within the task meets the task requirements.During the
-        process, resources are created in the <b>Verification Account</b>, with the
-        standardized suffix and prefix <b>added automatically</b> to their names.
-        <ul>
-<li>Your prefix: <span class="text-danger"></span></li>
-<li>Your suffix: <span class="text-danger"></span></li>
-<li>Region: <span class="text-danger">eu-central-1</span>
-                (Frankfurt)
-            </li>
-</ul>
-        For example, if you describe a resource called "resource", its full name will be:
-        <span class="text-danger">resource</span>
-        To find your resources easily, use the full name generated by the system.
-    </div>
-</div>
 </div>
 <div id="liveAlertPlaceholder"></div>
 <div id="taskStartForm">
+<h2>Preparations</h2>
+<!-- Modal -->
+<div aria-hidden="true" aria-labelledby="dynamicInputErrorModal" class="modal fade" id="dynamicInputErrorModal" role="dialog" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="position: absolute; bottom: 0; left: 0; right: 0; margin: auto;">
+<div class="modal-content">
+<div class="modal-header">
+<h1 class="modal-title fs-5" id="dynamicInputErrorModalLabel">
+                        Input parameters error</h1>
+</div>
+<div class="modal-body" id="dynamicInputErrorMessage"></div>
+<div class="modal-footer">
+<button class="btn btn-primary" data-bs-dismiss="modal" id="dynamicInputErrorCloseButton" type="button">
+                        Close
+                    </button>
+</div>
+</div>
+</div>
+</div>
 <form>
 <div id="dynamicStartParameters"></div>
-<button class="btn btn-outline-success" id="startTaskButton" type="submit">
+<button class="btn btn-outline-success mt-3" id="startTaskButton" type="submit">
             Start task
         </button>
 </form>
@@ -305,19 +81,13 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 </div>
 </div>
 <div class="mb-3 d-none" id="taskValidationForm">
-<div class="form-group mb-2">
-<p>Now you can solve the given problem. After that use the buttons below
-            to verify your solution. Verification can take several minutes.
-        </p>
+<h2>Verify task</h2>
+<p class="text-muted">Solve the given problem.
+        After that use buttons below to verify your solution. Verification can take several minutes.
+    </p>
 <div id="dynamicVerifyParameters"></div>
-</div>
-<div>
-        In order to proceed with a new verification or finish the current task,
-        it's important to first destroy the resources from the previous task.
-        To do this, please use the "Destroy Resources" button provided.
-    </div>
 <div aria-label="Verify or abort" class="btn-group mb-3" role="group">
-<button class="btn btn-outline-success" id="verifyTaskButton" type="submit">
+<button class="btn btn-outline-success" disabled="" id="verifyTaskButton" type="submit">
 <span aria-hidden="true" class="spinner-border-sm" role="status"></span>
 <span>Verify</span>
 </button>
@@ -325,107 +95,31 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 <span aria-hidden="true" class="spinner-border-sm" role="status"></span>
 <span>Abort</span>
 </button>
-<button class="btn btn-outline-primary" disabled="" id="destroyResources" type="submit">
-<span aria-hidden="true" class="spinner-border-sm" role="status"></span>
-<span>Destroy resources</span>
-</button>
 </div>
 </div>
 <div class="mb-3 d-none" id="taskValidations">
 <h2 class="mb-3">Checks</h2>
-<div class="mb-1 d-none" id="AISummary">
-<div class="form-check form-switch mb-1">
-<input class="form-check-input" id="AISummarySwitch" type="checkbox"/>
-<div class="form-check-label" for="AISummarySwitch">Enable Eda
-                recommendations
-            </div>
-</div>
-<div class="d-flex align-items-center mt-3 d-none" id="AISummaryLoader">
-<div class="spinner-border spinner-border-sm ms-2 me-3 mb-2" role="status"></div>
-<div class="lead me-2">Generating...</div>
-</div>
-<div class="alert alert-warning alert-dismissible d-none" id="AISummaryErrorAlertTemplate" role="alert">
-<div>Errors occurred during AI summary generation. Please retry
-                later. If the issue persists, contact the support team.
-            </div>
-<button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
-</div>
-<div id="AISummaryErrorAlertPlaceholder"></div>
-<div class="alert alert-warning alert-dismissible d-none" id="AISummaryErrorAlert" role="alert">`,
-            <div>Errors occurred during AI summary generation. Please retry
-                later. If the issue persists, contact the support team.
-            </div>
-<button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
-</div>
-</div>
 <div class="accordion" id="validationsAccordion">
-</div>
-</div>
-<div class="mb-3 d-none" id="AISummaryAccordion">
-<div class="accordion">
-<div class="accordion-item">
-<h2 class="accordion-header">
-<button aria-expanded="false" class="accordion-button collapsed bg-danger-subtle" data-bs-target="#AISummary-accordion" data-bs-toggle="collapse" id="AISummaryAccordionButton" type="button">Verification summary by Eda
-                </button>
-</h2>
-<div class="accordion-collapse collapse" id="AISummary-accordion">
-<div class="accordion-body" id="AISummaryContent" style="white-space: pre-wrap;"></div>
-</div>
-</div>
-</div>
-</div>
-<div class="mb-3 d-none" id="executorFailed">
-<div class="alert alert-warning" role="alert">
-<div>
-<h4 class="alert-heading">Unexpected error!</h4>
-<p>
-                There's been an unexpected error with your task. We suggest
-                restarting
-                it after some time. If the issue persists, please contact our
-                support
-                team at:
-                <a href="mailto:SupportEPM-CMTRL2@epam.com">SupportEPM-CMTRL2@epam.com</a>
-</p>
-</div>
 </div>
 </div>
 <div class="mb-3 d-none" id="taskValidationsFailed">
 <div class="alert alert-warning" role="alert">
-<button aria-label="Close" class="btn-close float-end" id="taskValidationsFailedCloseButton" type="button"></button>
 <div>
 <h4 class="alert-heading">Task verification failed!</h4>
-            During task verification, an error has occurred.
-        </div>
-<pre class="codehilite d-none" id="evalErrorMessage"></pre>
-<div>
-            You can check resources in sandbox and free to <b>Destroy
-            resources</b> and attempt to retry.
-            If this message recurs, please contact our support team.
-        </div>
-</div>
-</div>
-<div class="mb-3 d-none" id="destroyToProceedNotification">
-<div class="d-flex alert alert-info d-flex justify-content-between">
-<div class="col-lg-7 align-self-center p-2">
-<h4>Task successfully completed!</h4>
-<p>Take your time to view deployed resources. To <strong>finish the
-                task</strong> you should click "Destroy resources" button in
-                that
-                block or above.</p>
-</div>
-<div class="col-lg-2 d-flex align-items-center justify-content-center ml-auto p-2">
-<button class="btn btn-outline-primary" id="destroyResourcesNotificationButton" type="submit">
-<span aria-hidden="true" class="spinner-border-sm" role="status"></span>
-<span>Destroy resources</span>
-</button>
+<p>
+        During task verification, an error has occurred.
+        Consequently, the task will be terminated, and its associated resources will be
+        removed.
+        Please, try to run the task later. If this message recurs, please get in touch with our support team.
+      </p>
 </div>
 </div>
 </div>
 <div class="mb-3 d-none" id="destroymentLoader">
 <p class="lead text-muted">Please, wait while the resources are <b>being
-        destroyed</b>. You will get a confirmation, it could take several
-        minutes...
-    </p>
+        destroyed</b>. It can take several minutes...</p>
+<p class="lead text-muted">You will receive confirmation, once the resources
+        have been successfully removed.</p>
 <div class="spinner-border" role="status">
 <span class="visually-hidden">Loading...</span>
 </div>
@@ -448,11 +142,10 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 <form>
 <fieldset disabled="">
 <div class="mb-2">
-<div class="mb-3">Your task has been successfully completed. You
-                    are now able to commence a new task. We welcome any feedback
-                    regarding your experience. Please submit your feedback or
-                    simply click the "Submit feedback" button to restart the
-                    task.
+<div class="mb-3">You can complete the course after submitting
+                    your
+                    feedback. Review will be sent automatically after 5 minutes
+                    (blank) if you do not submit manually.
                 </div>
 <label class="form-label" for="feedbackScoreInput">Feedback
                     score</label>
@@ -468,7 +161,8 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 <label class="form-label" for="feedbackCommentInput">Comment:</label>
 <textarea class="form-control" id="feedbackCommentInput" rows="2"></textarea>
 </div>
-<button class="btn btn-outline-success mb-3" id="submitFeedbackButton" type="submit">Submit feedback
+<button class="btn btn-outline-success mb-3" id="submitFeedbackButton" type="submit">Submit feedback and
+                complete the task
             </button>
 </fieldset>
 <div class="mb-3 d-none" id="feedbackThank">Thank you for your feedback!
@@ -483,36 +177,25 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="position: absolute; bottom: 0; left: 0; right: 0; margin: auto;">
 <div class="modal-content">
 <div class="modal-header">
-<h1 class="modal-title fs-5" id="restartTaskModalLabel">
-                        Restart Task Confirmation</h1>
+<h1 class="modal-title fs-5" id="restartTaskModalLabel">Restart Task Confirmation</h1>
 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
 </div>
-<div class="modal-body">You are about to restart your task.
-                    Please note:
-                    <ol>
-<li><b>Resource Reset:</b> Pay attention that task
-                            resource naming could be changed.
-                        </li>
-<li><b>New Attempt:</b> After restart "Verify" button
-                            click will start a new task attempt.
-                        </li>
-<li><b>Score: </b> Your current score will be saved till
-                            the new task attempt start and updated after start.
-                        </li>
+<div class="modal-body">You are about to restart your task. Please note:
+            <ol>
+<li><b>Resource Reset:</b> Pay attention that task resource naming could be changed.</li>
+<li><b>New Attempt:</b> Click "Start Task" to begin anew.</li>
+<li><b>Score: </b> Your current score will be saved till the new task start and updated after start.</li>
 </ol>
 </div>
 <div class="modal-footer">
-<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel
-                    </button>
-<button class="btn btn-primary" data-bs-dismiss="modal" id="restartTaskButton" type="button">Submit
-                    </button>
+<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+<button class="btn btn-primary" data-bs-dismiss="modal" id="restartTaskButton" type="button">Submit</button>
 </div>
 </div>
 </div>
 </div>
 <div class="text-center">
-<button class="mb-3 btn btn-warning w-25" data-bs-target="#restartTaskModal" data-bs-toggle="modal" id="showModalButton">Restart the task
-        </button>
+<button class="mb-3 btn btn-warning w-25" data-bs-target="#restartTaskModal" data-bs-toggle="modal" id="showModalButton">Restart the task</button>
 </div>
 </div>
 <div class="mb-3 d-none" id="restartLoader">
@@ -525,10 +208,81 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 <script src="../static/js/main.js"></script>
 <script crossorigin="anonymous" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    window.dynamicData = ;
+    window.dynamicData = {
+  "start_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    }
+  },
+  "verify_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    },
+  }
+};
 </script>
 <script src="../static/js/mocks.js"></script>
 <script src="../static/js/helpers.js"></script>
-<script src="../static/js/sre.js"></script>
+<script src="../static/js/jtm.js"></script>
 <script>window.LiveReloadOptions = {host: "localhost"}</script><script crossorigin="anonymous" integrity="sha512-DSycG/J5pRCjy6wZ8nfeqaKuSAf9jVmSulTuzy1xQL+2yyBIp7fwzNvx+tZCtZ6kIRMqiDyWOYSl4zYjT32zOw==" src="https://cdnjs.cloudflare.com/ajax/libs/livereload-js/3.3.1/livereload.min.js"></script></body>
 </html>

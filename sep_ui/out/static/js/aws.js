@@ -18,6 +18,10 @@ function handleEvalReady(event) {
     spans2[1].innerText = ABORT;
 }
 
+function handleEvalBegan(event){
+    return;
+}
+
 function handleSetupSucceeded(event) {
     try {
         var placeholders = JSON.parse(event.data.definition.content);

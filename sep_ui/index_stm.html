@@ -262,7 +262,7 @@
         <div class="form-check form-switch mb-1">
             <input class="form-check-input" type="checkbox"
                    id="AISummarySwitch">
-            <div class="form-check-label" for="AISummarySwitch">Enable Eda
+            <div class="form-check-label" for="AISummarySwitch">Enable EdA
                 recommendations
             </div>
         </div>
@@ -343,7 +343,7 @@
                         class="accordion-button collapsed bg-danger-subtle"
                         type="button" data-bs-toggle="collapse"
                         data-bs-target="#AISummary-accordion"
-                        aria-expanded="false">Verification summary by Eda
+                        aria-expanded="false">Verification summary by EdA
                 </button>
             </h2>
             <div id="AISummary-accordion" class="accordion-collapse collapse">
@@ -396,11 +396,11 @@
 <!-- Bootstrap modal -->
 <div class="modal fade" id="validationCreditsModal" tabindex="-1" role="dialog"
      aria-labelledby="credentialsModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="credentialsModalLabel">SandBox
-                    credentials</h5>
+                <h5 class="modal-title" id="credentialsModalLabel">Verification
+                    account</h5>
             </div>
             <div class="modal-body">
                 <p>
@@ -417,11 +417,75 @@
                     </a>
                 </div>
                 <hr>
+                <div class="tab-content" id="nav-validationCreditsModalContent">
+                    <div class="tab-pane fade show active"
+                         id="nav-generate-validation-credits"
+                         role="tabpanel"
+                         aria-labelledby="nav-config-syndicate-tab">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab"
+                                   href="#validationLinux">macOS and Linux</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab"
+                                   href="#validationWindows">Windows</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab"
+                                   href="#validationPowershell">PowerShell</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="validationLinux">
+                                <div class="position-relative">
+                                    <pre class="chroma"
+                                         id="validationLinuxCreds"
+                                         data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="Click to copy this command"
+                                         style="white-space: nowrap;"></pre>
+                                    <i class="fas fa-copy position-absolute top-0 end-0 p-2"
+                                       onclick="copyToClipboard('validationLinuxCreds')"
+                                       style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="validationWindows">
+                                <div class="position-relative">
+                                    <pre class="chroma"
+                                         id="validationWindowsCreds"
+                                         data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="Click to copy this command"
+                                         style="white-space: nowrap;"></pre>
+                                    <i class="fas fa-copy position-absolute top-0 end-0 p-2"
+                                       onclick="copyToClipboard('validationWindowsCreds')"
+                                       style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="validationPowershell">
+                                <div class="position-relative">
+                                    <pre class="chroma"
+                                         id="validationPowerShellCreds"
+                                         data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="Click to copy this command"
+                                         style="white-space: nowrap;"></pre>
+                                    <i class="fas fa-copy position-absolute top-0 end-0 p-2"
+                                       onclick="copyToClipboard('validationPowerShellCreds')"
+                                       style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
                 <div id="copyValidationAccessKeyId"
                      class="d-flex justify-content-between">
-                    <label class="left-container p-2" style="flex-basis: 45%;"
+                    <label class="left-container p-2" style="flex-basis: 26%;"
                            for="validationAccessKeyId"><b>AWS Access Key ID:</b></label>
-                    <input class="individual-entry p-2" style="flex-basis: 45%;"
+                    <input class="individual-entry p-2" style="flex-basis: 70%;"
                            disabled="" type="text" id="validationAccessKeyId">
                     <i class="fas fa-copy ml-auto p-2" data-toggle="tooltip"
                        data-placement="top"
@@ -431,10 +495,10 @@
                 </div>
                 <div id="copyValidationSecretAccessKey"
                      class="d-flex justify-content-between">
-                    <label class="left-container p-2" style="flex-basis: 45%;"
+                    <label class="left-container p-2" style="flex-basis: 26%;"
                            for="validationSecretAccessKey"><b>AWS Secret Access
                         Key:</b></label>
-                    <input class="individual-entry p-2" style="flex-basis: 45%;"
+                    <input class="individual-entry p-2" style="flex-basis: 70%;"
                            disabled="" type="text"
                            id="validationSecretAccessKey">
                     <i class="fas fa-copy ml-auto p-2" data-toggle="tooltip"
@@ -445,10 +509,10 @@
                 </div>
                 <div id="copyValidationSessionToken"
                      class="d-flex justify-content-between">
-                    <label class="left-container p-2" style="flex-basis: 45%;"
+                    <label class="left-container p-2" style="flex-basis: 26%;"
                            for="validationSessionToken"><b>AWS Session
                         Token:</b></label>
-                    <input class="individual-entry p-2" style="flex-basis: 45%;"
+                    <input class="individual-entry p-2" style="flex-basis: 70%;"
                            disabled="" type="text" id="validationSessionToken">
                     <i class="fas fa-copy ml-auto p-2" data-toggle="tooltip"
                        data-placement="top"
@@ -846,7 +910,78 @@ Windows: setx SDCT_CONF /Users/$user/temp/syndicate-project/.syndicate-config-pe
 
 {% block custom_script %}
 <script>
-    window.dynamicData = {{ dynamic_input_params | default('undefined') | safe }};
+    window.dynamicData = {
+  "start_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    }
+  },
+  "verify_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    },
+  }
+};
 </script>
 <script src="../static/js/mocks.js"></script>
 <script src="../static/js/helpers.js"></script>

@@ -7,6 +7,9 @@ const VALIDATION_MANAGEMENT_CONSOLE_URL = 'validationManagementConsoleURL';
 const VALIDATION_ACCESS_KEY_ID_ID = 'validationAccessKeyId';
 const VALIDATION_SECRET_ACCESS_KEY_ID = 'validationSecretAccessKey';
 const VALIDATION_SESSION_TOKEN_ID = 'validationSessionToken';
+const VALIDATION_LINUX_CREDS_ID = 'validationLinuxCreds';
+const VALIDATION_WINDOWS_CREDS_ID = 'validationWindowsCreds';
+const VALIDATION_POWERSHELL_CREDS_ID = 'validationPowerShellCreds';
 const BONUS_CALCULATION_NOTIFICATION = 'bonusCalculationNotification';
 
 let firstTempCreditsButton;
@@ -17,25 +20,19 @@ let validationManagementConsoleURL;
 let validationAccessKeyId;
 let validationSecretAccessKey;
 let validationSessionToken;
+let validationLinuxCreds;
+let validationWindowsCreds;
+let validationPowerShellCreds;
 let bonusCalculationNotification;
-
-function copyToClipboard(id) {
-  var inputElement = document.querySelector(`#${CSS.escape(id)}`);
-
-  if (inputElement &&
-      inputElement.tagName.toLowerCase() === "input" &&
-      inputElement.type === "text") {
-    inputElement.select();
-    navigator.clipboard.writeText(inputElement.value);
-    inputElement.setSelectionRange(0, 0);
-  }
-}
 
 function showValidationCredentials(event){
     validationManagementConsoleURL.setAttribute('href', event.data.validationManagementConsoleURL);
     validationAccessKeyId.value = event.data.validationAccessKeyId;
     validationSecretAccessKey.value = event.data.validationSecretAccessKey;
     validationSessionToken.value = event.data.validationSessionToken;
+    validationLinuxCreds.innerText = generateLinuxEnvCommands(event);
+    validationWindowsCreds.innerText = generateWindowsEnvCommands(event);
+    validationPowerShellCreds.innerText = generatePowerShellEnvCommands(event);
     validationCreditsModal.show();
 }
 
@@ -57,30 +54,16 @@ function handleEvalReady(event) {
     spans2[1].innerText = ABORT;
 }
 
+function handleEvalBegan(event){
+    return;
+}
+
 function handleSetupSucceeded(event) {
-    try {
-        var placeholders = JSON.parse(event.data.definition.content);
-    } catch (error) {
-        console.error('Error while parsing placeholders to JSON:', error);
-        return;
-    }
-    var html = taskDefinition.querySelector(`#${TASK_DEFINITION_CONTENT_ID}`).innerHTML;
-    var regex = /\${(.*?)}/g;
-    var matches = html.match(regex);
+    updatePlaceholders(TASK_DEFINITION_CONTENT_ID, event.data.definition.content);
+}
 
-    if (matches != null) {
-    var validPlaceholders = matches.filter(function(match) {
-      var placeholder = match.substring(2, match.length - 1).trim();
-      return placeholders.hasOwnProperty(placeholder);
-    });
-
-    validPlaceholders.forEach(function(match) {
-      var placeholder = match.substring(2, match.length - 1).trim();
-      var value = placeholders[placeholder];
-      html = html.replace(match, value);
-    });
-    }
-    taskDefinition.querySelector(`#${TASK_DEFINITION_CONTENT_ID}`).innerHTML = html;
+function handleSetupError(event){
+    return;
 }
 
 function handleEvalFailedSucceeded(event){
@@ -182,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
     validationSecretAccessKey = document.getElementById(VALIDATION_SECRET_ACCESS_KEY_ID);
     validationSessionToken = document.getElementById(VALIDATION_SESSION_TOKEN_ID);
     validationCreditsModalCloseButton = document.getElementById(VALIDATION_CREDITS_MODAL_CLOSE_BUTTON_ID);
+    validationLinuxCreds = document.getElementById(VALIDATION_LINUX_CREDS_ID);
+    validationWindowsCreds = document.getElementById(VALIDATION_WINDOWS_CREDS_ID);
+    validationPowerShellCreds = document.getElementById(VALIDATION_POWERSHELL_CREDS_ID);
     bonusCalculationNotification = document.getElementById(BONUS_CALCULATION_NOTIFICATION);
 
     firstTempCreditsButton.addEventListener('click', (e) => {
@@ -222,4 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // must be runned after all js is loaded
-setTimeout( () => fetchAndReplayEvents(), 1000);
+//setTimeout( () => fetchAndReplayEvents(), 1000);
+
+console.log('aws_no_credits js ended!');
+console.log("Events fetched:", mock_events_data);
+setTimeout( () => replayEvents(mock_events_data), 2000);

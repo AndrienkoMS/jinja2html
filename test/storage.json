@@ -81,3 +81,34 @@ sre_validation_steps = [
     }
   ]
 }
+
+
+{
+  "result": "failed",
+  "score": 0,
+  "validation_steps": [
+    {
+      "description": "Verify if the resource named 'cmtr-af96e5bd-lambda-test' in the service 'Lambda' in the region 'eu-central-1' violates rules",
+      "index": 1,
+      "meta": {
+        "rules": [
+          {
+            "article": "This control checks function settings for the following runtimes: nodejs18.x,, nodejs16.x, nodejs14.x, nodejs12.x, python3.9, python3.8, python3.7, ruby2.7, java11, java8, java8.al2, go1.x, dotnetcore3.1, and dotnet6.\nLambda runtimes are built around a combination of operating system, programming language, and software libraries that are subject to maintenance and security updates. When a runtime component is no longer supported for security updates, Lambda deprecates the runtime. Even though you cannot create functions that use the deprecated runtime, the function is still available to process invocation events. Make sure that your Lambda functions are current and do not use out-of-date runtime environments.\nIt is strongly recommended that you migrate functions to a supported runtime version so that you continue to receive security patches and remain eligible for technical support.",
+            "description": "Lambda functions should not use no longer supported runtimes",
+            "impact": "When security updates are no longer available for a component of a runtime, Lambda deprecates the runtime. Because of this, using deprecated Lambda runtimes can pose a security risk. Moreover, functions that use a deprecated runtime are no longer eligible for technical support.",
+            "remediation": "To update a function, you need to migrate it to a supported runtime version. \n1. Login to the AWS Management Console and open the Amazon Lambda https://console.aws.amazon.com/lambda/.\n2. In the navigation pane click on the 'Functions'.\n3. Scroll down in the 'Code' tab to the 'Runtime settings' section.\n4. Click 'Edit'.\n5. Select a supported runtime version.\n6. Click 'Save'.",
+            "severity": "Info"
+          },
+          {
+            "article": "AWS X-Ray helps to visualize the components of your application, identify performance bottlenecks, and troubleshoot requests that resulted in an error.",
+            "description": "Lambda has active tracing disabled",
+            "impact": "If active tracing is not enabled it will be harder to debug and operate your functions as the X-Ray service support allows you to rapidly diagnose errors, identify bottlenecks, slowdowns and timeouts, by breaking down the latency for your Lambda functions.",
+            "remediation": "To turn on active tracing:\n  1. Open the AWS Lambda console at https://console.aws.amazon.com/lambda/\n  2. Navigate to Functions and then select your Lambda function.\n  3. Choose 'Configuration' and then choose 'Monitoring and operations' tools.\n  4. Choose Edit.\n  5. Under 'AWS X-Ray', toggle on 'Active tracing'.\n  6. Choose Save.",
+            "severity": "Low"
+          },
+        ]
+      },
+      "step_passed": false
+    }
+  ]
+}

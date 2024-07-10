@@ -76,7 +76,6 @@ const BG_DANGER_SUBTLE = 'bg-danger-subtle';
 const RESET_TASK_DELAY = 1800000; // 1000 milliseconds = 1 second
 const REFRESH_DELAY = 1000;
 
-
 let startTaskButton;
 let verifyTaskButton;
 let abortTaskButton;
@@ -171,31 +170,58 @@ function stopResetTaskTimer() {
 
 function generateInnerAccordion(id, description) {
     try {
-        const data = JSON.parse(JSON.stringify(description['rules']));
+        const data = JSON.parse(description);
+        const steps = data.validation_steps
         const innerAccordionContainer = document.createElement('div');
         innerAccordionContainer.className = 'accordion';
-        data.forEach((stepData, index) => {
-            const color = BG_DANGER_SUBTLE;
 
-            const item = createAccordionItem(
-                `${id}-innerAccordion-${index}`, `${stepData.description}`,
-                color, 'inner'
-            );
+        steps.forEach((stepData, index) => {
+            console.log(stepData);
+            const isStepPassed = stepData.step_passed !== undefined ? stepData.step_passed : false;
+            const buttonClass = isStepPassed ? BG_SUCCESS_SUBTLE : BG_DANGER_SUBTLE;
 
-            const collapse = document.createElement('div');
-            collapse.id = `${id}-innerAccordion-${index}`;
-            collapse.className = 'accordion-collapse collapse';
+            const header = document.createElement('h2');
+            header.className = 'accordion-header';
 
-            const body = document.createElement('div');
-            body.className = 'accordion-body inner';
-            body.style.whiteSpace = 'pre-wrap';
-            delete stepData.description;
-//              check that json is valid and parse back to have proper endlines instead of "\n"
-            body.innerHTML = JSON.stringify(stepData, null, 2);
-            collapse.appendChild(body);
-            item.style.marginBottom = '1px';
-            item.appendChild(collapse);
-            innerAccordionContainer.appendChild(item);
+            if (isStepPassed === true) {
+                const button = document.createElement("button");
+                button.className = `accordion-button ${buttonClass} no-accordion`;
+                button.setAttribute("type", "button");
+                button.textContent = `${stepData.index}. ${stepData.description}`;
+                button.style.backgroundImage = 'none';
+
+                header.appendChild(button);
+                header.style.marginBottom = "1px";
+                innerAccordionContainer.appendChild(header);
+            } else {
+                const innerAccordionItem = document.createElement('div');
+                innerAccordionItem.className = 'innerAccordion-item';
+
+                const button = document.createElement('button');
+                button.className = `accordion-button ${buttonClass}`;
+                button.setAttribute('type', 'button');
+                button.setAttribute('data-bs-toggle', 'collapse');
+                button.setAttribute('data-bs-target', `#${id}-innerAccordion-${index}`);
+                button.setAttribute('aria-expanded', 'false');
+                button.textContent = `${stepData.index}. ${stepData.description}`;
+
+                header.appendChild(button);
+
+                const collapse = document.createElement('div');
+                collapse.id = `${id}-innerAccordion-${index}`;
+                collapse.className = 'accordion-collapse collapse';
+
+                const body = document.createElement('div');
+                body.className = 'accordion-body';
+                body.style.whiteSpace = 'pre-wrap';
+                body.innerHTML = JSON.stringify(stepData.meta, null, 2);
+
+                collapse.appendChild(body);
+                innerAccordionItem.style.marginBottom = '1px';
+                innerAccordionItem.appendChild(header);
+                innerAccordionItem.appendChild(collapse);
+                innerAccordionContainer.appendChild(innerAccordionItem);
+            }
         });
 
         return innerAccordionContainer;
@@ -218,12 +244,12 @@ function handleIncomingEvent(eventData) {
             deploymentLoader.classList.add('d-none');
             handleOngoingTask(event);
         } else if (event.action == 'reload_ui'){
-        // need to wait here so dynamodb will be updated on page reload
-        console.log(`Sleeping ${REFRESH_DELAY / 1000} seconds`);
-        setTimeout(function() {
-          location.reload();
-        }, REFRESH_DELAY);
-            console.log('Reload ui completed');
+            // need to wait here so dynamodb will be updated on page reload
+            console.log(`Sleeping ${REFRESH_DELAY / 1000} seconds`);
+            setTimeout(function() {
+                location.reload();
+            }, REFRESH_DELAY);
+                console.log('Reload ui completed');
         } else if (event.action == 'validation_credentials'){
             console.log('event.action == validation_credentials');
             showValidationCredentials(event);
@@ -266,6 +292,7 @@ function handleIncomingEvent(eventData) {
     } else if (event.stage == EVAL_STAGE && event.event == BEGAN_EVENT) {
         verifyTaskButton.disabled = true;
         abortTaskButton.disabled = true;
+        handleEvalBegan(event);
         scrollToBottom();
     } else if (event.stage == EVAL_STAGE && event.event == ERROR_EVENT) {
         taskValidationsFailed.classList.remove('d-none');
@@ -319,17 +346,17 @@ function handleIncomingEvent(eventData) {
 
 // if html page will be rebooted it would collect events
 // and then rebuild it to actual stage
-function fetchAndReplayEvents() {
-  fetchEvents()
-    .then((eventsData) => {
-      if (!eventsData.items || eventsData.items.length === 0) {
-        console.log("No events fetched. Starting new task");
-      } else {
-        console.log("Events fetched:", eventsData);
-        replayEvents(eventsData);
-      }
-    })
-}
+//function fetchAndReplayEvents() {
+//  fetchEvents()
+//    .then((eventsData) => {
+//      if (!eventsData.items || eventsData.items.length === 0) {
+//        console.log("No events fetched. Starting new task");
+//      } else {
+//        console.log("Events fetched:", eventsData);
+//        replayEvents(eventsData);
+//      }
+//    })
+//}
 
 
 function replayEvents(eventsData) {
@@ -366,7 +393,7 @@ function scrollToBottom() {
 }
 
 
-function createAccordionItem(id, title, color, className = '') {
+function createAccordionButton(id, title, color, className = '') {
     const item = document.createElement('div');
     item.className = `accordion-item ${className}`;
 
@@ -389,7 +416,7 @@ function createAccordionItem(id, title, color, className = '') {
 }
 
 
-function createAccordionBody(id, description) {
+function createAccordionBody(id, description, innerAccordionContent) {
     const collapse = document.createElement('div');
     collapse.id = id;
     collapse.className = 'accordion-collapse collapse';
@@ -397,9 +424,6 @@ function createAccordionBody(id, description) {
     const body = document.createElement('div');
     body.className = 'accordion-body';
     body.style.whiteSpace = 'normal';
-
-    // Append the content generated by generateInnerAccordion
-    const innerAccordionContent = generateInnerAccordion(id, description);
     body.appendChild(innerAccordionContent);
 
     collapse.appendChild(body);
@@ -409,8 +433,9 @@ function createAccordionBody(id, description) {
 
 const buildAccordionItem = function (id, result, title, description) {
     const color = result === 'success' ? BG_SUCCESS_SUBTLE : BG_DANGER_SUBTLE;
-    const item = createAccordionItem(id, title, color);
-    const body = createAccordionBody(id, description);
+    const item = createAccordionButton(id, title, color);
+    const innerAccordionContent = generateInnerAccordion(id, description);
+    const body = createAccordionBody(id, description, innerAccordionContent);
     item.appendChild(body);
     return item;
 }

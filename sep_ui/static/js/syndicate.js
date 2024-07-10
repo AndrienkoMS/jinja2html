@@ -78,6 +78,17 @@ function handleEvalReady(event) {
     taskValidationForm.classList.remove('d-none');
 }
 
+
+function handleEvalBegan(event){
+    return;
+}
+
+
+function handleEvalBegan(event){
+    return;
+}
+
+
 function handleEvalFailedSucceeded(event){
     let container = taskValidations.querySelector(`#${TASK_VALIDATIONS_ACCORDION_ID}`);
     let index = container.childElementCount + 1;

@@ -5,7 +5,7 @@ const VALIDATION_CREDITS_MODAL_ID = 'validationCreditsModal';
 const VALIDATION_CREDITS_MODAL_CLOSE_BUTTON_ID = 'validationCreditsModalCloseButton';
 const EXECUTION_CREDITS_MODAL_ID = 'executionCreditsModal';
 const EXECUTION_CREDITS_MODAL_CLOSE_BUTTON_ID ='executionCreditsModalCloseButton';
-const AI_SUMMARY_SWITCH_ID = 'AISummarySwitch';
+//const AI_SUMMARY_SWITCH_ID = 'AISummarySwitch';
 const AI_SUMMARY_LOADER_ID = 'AISummaryLoader';
 const AI_SUMMARY_ERROR_ALERT_TEMPLATE_ID = 'AISummaryErrorAlertTemplate';
 const AI_SUMMARY_ERROR_ALERT_PLACEHOLDER_ID = 'AISummaryErrorAlertPlaceholder';
@@ -15,7 +15,6 @@ const AI_SUMMARY_CONTENT_ID = 'AISummaryContent';
 const EXECUTOR_FAILED_ID = 'executorFailed';
 const TASK_VALIDATIONS_FAILED_ID = 'taskValidationsFailed';
 const TASK_VALIDATIONS_FAILED_CLOSE_BUTTON_ID = 'taskValidationsFailedCloseButton';
-const DESTROY_RESOURCES_BUTTON_ID = 'destroyResources';
 const VALIDATION_MANAGEMENT_CONSOLE_URL = 'validationManagementConsoleURL';
 const VALIDATION_ACCESS_KEY_ID_ID = 'validationAccessKeyId';
 const VALIDATION_SECRET_ACCESS_KEY_ID = 'validationSecretAccessKey';
@@ -33,12 +32,16 @@ const SYNDICATE_GENERATE_LINUX_ID ='syndicateGenerateLinux';
 const SYNDICATE_GENERATE_WINDOWS_ID = 'syndicateGenerateWindows';
 const SYNDICATE_GENERATE_POWERSHELL_ID = 'syndicateGeneratePowerShell';
 const SYNDICATE_UPDATE_CREDENTIALS_ID = 'syndicateUpdateCredentials';
+const VALIDATION_LINUX_CREDS_ID = 'validationLinuxCreds';
+const VALIDATION_WINDOWS_CREDS_ID = 'validationWindowsCreds';
+const VALIDATION_POWERSHELL_CREDS_ID = 'validationPowerShellCreds';
 
 const DYNAMIC_START_PARAMETERS_ID = 'dynamicStartParameters';
 const DYNAMIC_VERIFY_PARAMETERS_ID = 'dynamicVerifyParameters';
 const DESTROY_TO_PROCEED_NOTIFICATION_ID = 'destroyToProceedNotification';
 const DESTROY_RESOURCES_NOTIFICATION_BUTTON_ID= 'destroyResourcesNotificationButton';
 
+const INCORRECTLY_DELETED_MESSAGE = 'Resource was incorrectly deleted. Task should be started from scratch. Please, abort the task and try again.';
 
 let firstTempCreditsButton;
 let secondTempCreditsButton;
@@ -46,7 +49,6 @@ let validationCreditsModal;
 let validationCreditsModalCloseButton;
 let executionCreditsModal;
 let executionCreditsModalCloseButton;
-let destroyResourcesButton;
 let destroyToProceedNotification;
 let destroyResourcesNotificationButton;
 let validationManagementConsoleURL;
@@ -64,7 +66,10 @@ let syndicateGenerateLinux;
 let syndicateGenerateWindows;
 let syndicateGeneratePowerShell;
 let syndicateUpdateCredentials;
-let AISummarySwitch;
+let validationLinuxCreds;
+let validationWindowsCreds;
+let validationPowerShellCreds;
+//let AISummarySwitch;
 let AISummaryLoader;
 let AISummaryErrorAlertTemplate;
 let AISummaryErrorAlertPlaceholder;
@@ -78,14 +83,6 @@ let evalErrorMessage;
 
 let dynamicParameters;
 
-function copyToClipboard(id) {
-  var element = document.querySelector(`#${CSS.escape(id)}`);
-
-  if (element) {
-    var text = element.tagName.toLowerCase() === "input" ? element.value : element.innerText;
-    navigator.clipboard.writeText(text);
-  }
-}
 
 function generateSyndicateConfigCommand(event, lineBreakSymbol) {
     return `syndicate generate config --name "dev" ${lineBreakSymbol}
@@ -99,12 +96,14 @@ function generateSyndicateConfigCommand(event, lineBreakSymbol) {
     --session_token "${event.data.executionSessionToken}"`;
 }
 
+
 function generateSyndicateCredentialsText(event) {
     return `expiration: ${event.data.executionExpiration}
 temp_aws_access_key_id: ${event.data.executionAccessKeyId}
 temp_aws_secret_access_key: ${event.data.executionSecretKey}
 temp_aws_session_token: ${event.data.executionSessionToken}`;
 }
+
 
 function showExecutionCredentials(event){
     executionRegion.value = event.data.executionRegion;
@@ -121,34 +120,69 @@ function showExecutionCredentials(event){
     executionCreditsModal.show();
 }
 
+
 function showValidationCredentials(event){
     validationManagementConsoleURL.setAttribute('href', event.data.validationManagementConsoleURL);
     validationAccessKeyId.value = event.data.validationAccessKeyId;
     validationSecretAccessKey.value = event.data.validationSecretAccessKey;
     validationSessionToken.value = event.data.validationSessionToken;
+    validationLinuxCreds.innerText = generateLinuxEnvCommands(event);
+    validationWindowsCreds.innerText = generateWindowsEnvCommands(event);
+    validationPowerShellCreds.innerText = generatePowerShellEnvCommands(event);
     validationCreditsModal.show();
 }
+
+
+function generateSREInnerAccordion(id, description) {
+    try {
+        const data = JSON.parse(JSON.stringify(description['rules']));
+        const innerAccordionContainer = document.createElement('div');
+        innerAccordionContainer.className = 'accordion';
+        data.forEach((stepData, index) => {
+            const color = BG_DANGER_SUBTLE;
+            const item = createAccordionButton(
+                `${id}-innerAccordion-${index}`, `${stepData.description}`,
+                color, 'inner'
+            );
+            const collapse = document.createElement('div');
+            collapse.id = `${id}-innerAccordion-${index}`;
+            collapse.className = 'accordion-collapse collapse';
+            const body = document.createElement('div');
+            body.className = 'accordion-body inner';
+            body.style.whiteSpace = 'pre-wrap';
+            delete stepData.description;
+//          check that json is valid and parse back to have proper endlines instead of "\n"
+            body.innerHTML = JSON.stringify(stepData, null, 2);
+            collapse.appendChild(body);
+            item.style.marginBottom = '1px';
+            item.appendChild(collapse);
+            innerAccordionContainer.appendChild(item);
+        });
+
+        return innerAccordionContainer;
+    } catch (error) {
+        console.error("Error parsing JSON for inner accordion items:", error);
+        return null;
+    }
+}
+
 
 const buildSREAccordionItem = function (id, result, title, description) {
     const color = result === 'success' ? BG_SUCCESS_SUBTLE : BG_DANGER_SUBTLE;
     // for sre tasks title should be in format like: 'validation-*: some_issue_description
-
     const sre_title = id + ': ' + title;
-    const item = createAccordionItem(id, sre_title, color);
-    const body = createAccordionBody(id, description);
+    const item = createAccordionButton(id, sre_title, color);
+    const innerAccordionContent = generateSREInnerAccordion(id, description);
+    const body = createAccordionBody(id, description, innerAccordionContent);
     item.appendChild(body);
     return item;
 }
 
+
 function handleOngoingTask(event){
-    startTaskButton.style.display = 'block';
-    verifyTaskButton.style.display = 'none';
-    verifyTaskButton.disabled = false;
-    abortTaskButton.disabled = true;
-    let spans = verifyTaskButton.querySelectorAll('span');
-    spans[0].classList.remove('spinner-border');
-    spans[1].innerText = VERIFY;
+    return;
 }
+
 
 function handleSetupStartJobFailedSucceeded(event){
     // we are here when (event.stage == SETUP_START_JOB_STAGE)
@@ -163,16 +197,21 @@ function handleSetupStartJobFailedSucceeded(event){
     }
 }
 
+
 function handleSetupError(event){
     executorFailed.classList.remove('d-none');
+    restartTask.classList.remove('d-none');
 }
+
 
 function handleVerifyStartJobFailedSucceeded(event){
     // we are here when (event.stage == VERIFY_START_JOB_STAGE)
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+    }
     if (event.event == SUCCEEDED_EVENT){
         verifyTaskButton.disabled = true;
         abortTaskButton.disabled = true;
-        destroyResourcesButton.disabled = true;
         let spans = verifyTaskButton.querySelectorAll('span');
         spans[0].classList.add('spinner-border');
         spans[1].innerText = VERIFYING;
@@ -188,45 +227,28 @@ function handleVerifyStartJobFailedSucceeded(event){
     }
 }
 
+
 function handleCleanStartJobSucceeded(event){
     taskValidationsFailed.classList.add('d-none');
-    let spans = destroyResourcesButton.querySelectorAll('span');
-    spans[0].classList.add('spinner-border');
-    spans[1].innerText = DESTROYING;
     destroyToProceedNotification.classList.add('d-none');
-    destroyResourcesButton.disabled = true;
+    abortTaskButton.disabled = true;
+    verifyTaskButton.disabled = true;
+    destroymentLoader.classList.remove('d-none');
     scrollToBottom();
 }
+
 
 function handleCleanStartJobFailed(event){
     executorFailed.classList.remove('d-none');
-    let spans = destroyResourcesButton.querySelectorAll('span');
-    spans[0].classList.remove('spinner-border');
-    spans[1].innerText = DESTROY;
-    destroyResourcesButton.disabled = true;
     scrollToBottom();
 }
 
-function handleEvalReady(event) {
-    let spans = destroyResourcesButton.querySelectorAll('span');
-    spans[0].classList.remove('spinner-border');
-    spans[1].innerText = DESTROY;
-    let spans1 = verifyTaskButton.querySelectorAll('span');
-    spans1[0].classList.remove('spinner-border');
-    spans1[1].innerText = VERIFY;
-    let spans2 = abortTaskButton.querySelectorAll('span');
-    spans2[0].classList.remove('spinner-border');
-    spans2[1].innerText = ABORT;
-
-    verifyTaskButton.disabled = false;
-    abortTaskButton.disabled = false;
-    destroyResourcesButton.disabled = true;
-}
 
 function handleSetupSucceeded(event) {
+    updatePlaceholders(TASK_DEFINITION_CONTENT_ID, event.data.definition.content);
     let container = taskValidations.querySelector(`#${TASK_VALIDATIONS_ACCORDION_ID}`);
     try {
-        const steps = event.data.validation_steps;
+        const steps = JSON.parse(event.data.validation).validation_steps;
         const innerAccordionContainer = document.createElement('div');
         innerAccordionContainer.className = 'accordion';
         steps.forEach(stepData => {
@@ -245,40 +267,64 @@ function handleSetupSucceeded(event) {
         console.error("Error parsing JSON for inner accordion items:", error);
         return null;
     }
-    // unlocking buttons
+    taskValidationForm.classList.remove('d-none');
     taskValidations.classList.remove('d-none');
-//    let spans1 = verifyTaskButton.querySelectorAll('span');
-//    spans1[0].classList.remove('spinner-border');
-//    spans1[1].innerText = VERIFY;
-//    let spans2 = abortTaskButton.querySelectorAll('span');
-//    spans2[0].classList.remove('spinner-border');
-//    spans2[1].innerText = ABORT;
     deploymentLoader.classList.add('d-none');
     abortTaskButton.disabled = true;
-    destroyResourcesButton.disabled = true;
-//    AISummarySwitch.disabled = false;
 }
+
+
+function handleEvalReady(event) {
+    let spans1 = verifyTaskButton.querySelectorAll('span');
+    spans1[0].classList.remove('spinner-border');
+    spans1[1].innerText = VERIFY;
+    let spans2 = abortTaskButton.querySelectorAll('span');
+    spans2[0].classList.remove('spinner-border');
+    spans2[1].innerText = ABORT;
+
+    verifyTaskButton.disabled = false;
+    abortTaskButton.disabled = false;
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'enable');
+    }
+}
+
+
+function handleEvalBegan(event){
+    return;
+}
+
 
 function handleEvalFailedSucceeded(event){
     let container = taskValidations.querySelector(`#${TASK_VALIDATIONS_ACCORDION_ID}`);
     const accordions = container.querySelectorAll('.accordion-item:not(.inner)');
+    const validation_steps = JSON.parse(event.data.validation).validation_steps;
 
     accordions.forEach(a => {
         const description = a.querySelector('.accordion-button').innerText;
         const externalAccordionButton = a.querySelector('.accordion-button');
-        const stepsFromEvent = event.data.validation_steps;
+        const externalAccordionBody = a.querySelector('.accordion');
+        const stepsFromEvent = validation_steps;
         externalAccordionButton.classList.remove(BG_DANGER_SUBTLE);
         externalAccordionButton.classList.remove(BG_SUCCESS_SUBTLE);
         let externalButtonColor = BG_DANGER_SUBTLE;
 
-        stepsFromEvent.forEach(step => {
-            if (description.includes(step.description)) {
-//                debugger;
-                if (step.meta.rules.length === 0) {
+        if (!stepsFromEvent || stepsFromEvent.length === 0) {
+            externalButtonColor = BG_SUCCESS_SUBTLE;
+        } else {
+            stepsFromEvent.forEach(step => {
+                if (step.incorrectly_deleted) {
+                    console.log('Incorrectly deleted');
+                    externalAccordionBody.innerText = INCORRECTLY_DELETED_MESSAGE;
+                    return;
+                  }
+                if (description.includes(step.description)) {
+                  if (step.meta.rules.length === 0) {
                     externalButtonColor = BG_SUCCESS_SUBTLE;
+                  }
                 }
-            }
-        });
+            });
+        }
         externalAccordionButton.classList.add(externalButtonColor);
 
         const accordionItems = a.querySelectorAll('.accordion-item');
@@ -287,7 +333,7 @@ function handleEvalFailedSucceeded(event){
             const content = item.querySelector('.inner').innerText;
             button.classList.remove(BG_DANGER_SUBTLE);
             button.classList.remove(BG_SUCCESS_SUBTLE);
-            if (ruleIsStored(description, content, event.data.validation_steps)){
+            if (ruleIsStored(description, content, validation_steps)){
                 button.classList.add(BG_DANGER_SUBTLE);
             } else {
                 button.classList.add(BG_SUCCESS_SUBTLE);
@@ -303,12 +349,12 @@ function handleEvalFailedSucceeded(event){
     spans2[0].classList.remove('spinner-border');
     spans2[1].innerText = ABORT;
     abortTaskButton.disabled = true;
-    destroyResourcesButton.disabled = false;
-    AISummarySwitch.disabled = false;
+//    AISummarySwitch.disabled = false;
     if (event.event == SUCCEEDED_EVENT){
         destroyToProceedNotification.classList.remove('d-none');
     }
 }
+
 
 function handleEvalError(event){
     let spans = verifyTaskButton.querySelectorAll('span');
@@ -319,13 +365,14 @@ function handleEvalError(event){
         evalErrorMessage.classList.remove('d-none');
     }
     verifyTaskButton.disabled = true;
-    abortTaskButton.disabled = true;
-    destroyResourcesButton.disabled = false;
+    abortTaskButton.disabled = false;
 }
+
 
 function handleAISummaryBegan(event){
     AISummaryLoader.classList.remove('d-none');
 }
+
 
 function handleAISummaryFailedSucceeded(event){
     AISummaryLoader.classList.add('d-none');
@@ -341,6 +388,7 @@ function handleAISummaryFailedSucceeded(event){
     AISummaryAccordion.scrollIntoView({ behavior: 'smooth' });
 }
 
+
 function handleAISummaryError(event){
     AISummaryLoader.classList.add('d-none');
     let newAlert = AISummaryErrorAlertTemplate.cloneNode(true);
@@ -348,21 +396,23 @@ function handleAISummaryError(event){
     AISummaryErrorAlertPlaceholder.appendChild(newAlert);
 }
 
+
 function handleCleanupBegan(event){
     destroyToProceedNotification.classList.add('d-none');
-    AISummarySwitch.disabled = true;
+    destroymentLoader.classList.remove('d-none');
+//    AISummarySwitch.disabled = true;
 }
+
 
 function handleCleanupStatus(event){
     return;
 }
 
+
 function handleCleanupFailed(event){
     verifyTaskButton.disabled = true;
     abortTaskButton.disabled = true;
-    let spans = destroyResourcesButton.querySelectorAll('span');
-    spans[0].classList.remove('spinner-border');
-    spans[1].innerText = DESTROY;
+    destroymentLoader.classList.add('d-none');
     let data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     if (data.unblock_feedback) {
         console.log('Unblocking feedback fields');
@@ -374,14 +424,12 @@ function handleCleanupFailed(event){
     }
 }
 
+
 function handleCleanupSucceeded(event){
     verifyTaskButton.disabled = true;
     abortTaskButton.disabled = true;
-    let spans = destroyResourcesButton.querySelectorAll('span');
-    spans[0].classList.remove('spinner-border');
-    spans[1].innerText = DESTROY;
+    destroymentLoader.classList.add('d-none');
     destroymentContent.innerHTML = SUCCESS_CLEANUP_MESSAGE;
-//    let data = JSON.parse(event.data);
     let data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     if (data.unblock_feedback) {
         console.log('Unblocking feedback fields');
@@ -392,11 +440,13 @@ function handleCleanupSucceeded(event){
         feedbackThank.classList.remove('d-none');
     }
 }
+
 
 function customSubmitFeedbackButton(){
     restartTask.classList.remove('d-none');
     feedbackThank.classList.remove('d-none');
 }
+
 
 function customRestartTaskButton(){
     AISummaryAccordion.classList.add('d-none');
@@ -423,10 +473,13 @@ document.addEventListener('DOMContentLoaded', () => {
     syndicateGenerateLinux = document.getElementById(SYNDICATE_GENERATE_LINUX_ID);
     syndicateGenerateWindows = document.getElementById(SYNDICATE_GENERATE_WINDOWS_ID);
     syndicateGeneratePowerShell = document.getElementById(SYNDICATE_GENERATE_POWERSHELL_ID);
+    validationLinuxCreds = document.getElementById(VALIDATION_LINUX_CREDS_ID);
+    validationWindowsCreds = document.getElementById(VALIDATION_WINDOWS_CREDS_ID);
+    validationPowerShellCreds = document.getElementById(VALIDATION_POWERSHELL_CREDS_ID);
     syndicateUpdateCredentials = document.getElementById(SYNDICATE_UPDATE_CREDENTIALS_ID);
     executionCreditsModalCloseButton = document.getElementById(EXECUTION_CREDITS_MODAL_CLOSE_BUTTON_ID);
 
-    AISummarySwitch = document.getElementById(AI_SUMMARY_SWITCH_ID);
+//    AISummarySwitch = document.getElementById(AI_SUMMARY_SWITCH_ID);
     AISummaryLoader = document.getElementById(AI_SUMMARY_LOADER_ID);
     AISummaryErrorAlertTemplate = document.getElementById(AI_SUMMARY_ERROR_ALERT_TEMPLATE_ID);
     AISummaryErrorAlertPlaceholder = document.getElementById(AI_SUMMARY_ERROR_ALERT_PLACEHOLDER_ID);
@@ -436,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
     executorFailed = document.getElementById(EXECUTOR_FAILED_ID);
     taskValidationsFailed = document.getElementById(TASK_VALIDATIONS_FAILED_ID);
     taskValidationsFailedCloseButton = document.getElementById(TASK_VALIDATIONS_FAILED_CLOSE_BUTTON_ID);
-    destroyResourcesButton = document.getElementById(DESTROY_RESOURCES_BUTTON_ID);
     destroyToProceedNotification = document.getElementById(DESTROY_TO_PROCEED_NOTIFICATION_ID);
     destroyResourcesNotificationButton = document.getElementById(DESTROY_RESOURCES_NOTIFICATION_BUTTON_ID);
     evalErrorMessage = document.getElementById(EVAL_ERROR_MESSAGE_ID);
@@ -454,9 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         let dynamicParameters;
         if (window.dynamicData && window.dynamicData.start_params) {
-          dynamicParameters = await gatherAndValidateValues(DYNAMIC_START_PARAMETERS_ID, window.dynamicData.start_params);
+            dynamicParameters = await gatherAndValidateValues(DYNAMIC_START_PARAMETERS_ID, window.dynamicData.start_params);
         } else {
-          dynamicParameters = {};
+            dynamicParameters = {};
         }
         body = buildBody('start_task', {
             dynamic_parameters: dynamicParameters
@@ -468,59 +520,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     verifyTaskButton.addEventListener('click', async (e) => {
         e.preventDefault();
-        dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+        let dynamicParameters;
+        if (window.dynamicData && window.dynamicData.verify_params) {
+          dynamicParameters = await gatherAndValidateValues(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+          toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+        } else {
+            dynamicParameters = {};
+        }
         console.log('dynamicParameters: ', dynamicParameters);
-        if (dynamicParameters) {
-            this.ws.send(buildBody('send_input', {
-                type: VERIFY_START_JOB_STAGE,
-                dynamic_parameters: dynamicParameters
-            }));
-        }
-        else {
-            console.log('Dynamic parameters error');
-            return;
-        }
+        this.ws.send(buildBody('send_input', {
+            type: VERIFY_START_JOB_STAGE,
+            dynamic_parameters: dynamicParameters
+        }));
         verifyTaskButton.disabled = true;
         abortTaskButton.disabled = true;
         let spans = verifyTaskButton.querySelectorAll('span');
         spans[0].classList.add('spinner-border');
         spans[1].innerText = VERIFYING;
         executorFailed.classList.add('d-none');
+        taskValidationsFailed.classList.add('d-none');
     });
     abortTaskButton.addEventListener('click', (e) => {
+        if (window.dynamicData && window.dynamicData.verify_params) {
+            toggleDynamicData(DYNAMIC_VERIFY_PARAMETERS_ID,window.dynamicData.verify_params, 'disable');
+        }
         abortTaskButton.disabled = true;
         verifyTaskButton.disabled = true;
-        this.ws.send(buildBody('send_input', { 'type': 'abort' }));
-        taskFeedback.querySelector('fieldset').disabled = false;
-        taskFeedback.classList.remove('d-none');
+        destroymentLoader.classList.remove('d-none');
+        taskValidationsFailed.classList.add('d-none');
+//        AISummarySwitch.disabled = true;
+//        this.ws.send(buildBody('send_input', { 'type': 'abort' }));
+        taskValidationsFailed.classList.add('d-none');
+//        taskFeedback.querySelector('fieldset').disabled = false;
+//        taskFeedback.classList.remove('d-none');
         scrollToBottom();
     });
-    destroyResourcesButton.addEventListener('click', (e) => {
-        taskValidationsFailed.classList.add('d-none');
-        let spans = destroyResourcesButton.querySelectorAll('span');
-        spans[0].classList.add('spinner-border');
-        spans[1].innerText = DESTROYING;
-        destroyResourcesButton.disabled = true;
-        destroyToProceedNotification.classList.add('d-none');
-        this.ws.send(buildBody('send_input', { 'type': 'destroy_resources' }));
-    });
     destroyResourcesNotificationButton.addEventListener('click', (e) => {
-        let spans = destroyResourcesButton.querySelectorAll('span');
-        spans[0].classList.add('spinner-border');
-        spans[1].innerText = DESTROYING;
-        destroyResourcesButton.disabled = true;
         destroyToProceedNotification.classList.add('d-none');
+        destroymentLoader.classList.remove('d-none');
         this.ws.send(buildBody('send_input', { 'type': 'destroy_resources' }));
     });
-    AISummarySwitch.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      console.log('Eda recommendations enabled');
-      this.ws.send(buildBody('get_ai_summary', {}));
-    } else {
-      console.log('Eda recommendations disabled');
-      AISummaryAccordion.classList.add('d-none')
-    }
-  });
+//    AISummarySwitch.addEventListener('change', (e) => {
+//        if (e.target.checked) {
+//          console.log('Eda recommendations enabled');
+//          this.ws.send(buildBody('get_ai_summary', {}));
+//        } else {
+//          console.log('Eda recommendations disabled');
+//          AISummaryAccordion.classList.add('d-none')
+//        }
+//    });
     validationCreditsModalCloseButton.addEventListener('click', (e) => {
         validationCreditsModal.hide();
     });
@@ -532,17 +580,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     console.log('dynamicData', window.dynamicData);
-    appendChildElements(DYNAMIC_START_PARAMETERS_ID, window.dynamicData.start_params);
-    appendChildElements(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+    if (window.dynamicData && window.dynamicData.start_params) {
+        appendChildElements(DYNAMIC_START_PARAMETERS_ID, window.dynamicData.start_params);
+    } else {
+        console.log("No start parameters")
+    }
+    if (window.dynamicData && window.dynamicData.verify_params) {
+        appendChildElements(DYNAMIC_VERIFY_PARAMETERS_ID, window.dynamicData.verify_params);
+    } else {
+        console.log("No verify parameters")
+    }
 });
 
 // must be runned after all js is loaded
 //setTimeout( () => fetchAndReplayEvents(), 1000);
 
 console.log('sre js ended!');
-console.log("Events fetched:", mock_events_data);
-//replayEvents(mock_events_data);
-setTimeout( () => replayEvents(mock_events_data), 2000);
+console.log("Events fetched:", mock_events_sre_data);
+setTimeout( () => replayEvents(mock_events_sre_data), 2000);
 // if it wouldn't work can try next:
 //window.handleEvalFailedSucceeded = function
 //<script async defer src="{{ static('js/syndicate.js') }}"></script>
