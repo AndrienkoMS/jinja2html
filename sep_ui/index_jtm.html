@@ -1,0 +1,294 @@
+{% extends 'templates/home.html' %}
+
+{% block custom_start_form %}
+<div id="taskStartForm">
+    <h2>Preparations</h2>
+    <!-- Modal -->
+    <div class="modal fade" id="dynamicInputErrorModal" tabindex="-1"
+         role="dialog" aria-labelledby="dynamicInputErrorModal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+             style="position: absolute; bottom: 0; left: 0; right: 0; margin: auto;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5"
+                        id="dynamicInputErrorModalLabel">
+                        Input parameters error</h1>
+                </div>
+                <div class="modal-body" id="dynamicInputErrorMessage"></div>
+                <div class="modal-footer">
+                    <button id="dynamicInputErrorCloseButton" type="button"
+                            class="btn btn-primary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form>
+        <div id="dynamicStartParameters"></div>
+        <button id="startTaskButton" type="submit"
+                class="btn btn-outline-success mt-3">
+            Start task
+        </button>
+    </form>
+</div>
+{% endblock custom_start_form %}
+
+{% block custom_validation_form %}
+<div id="taskValidationForm" class="mb-3 d-none">
+    <h2>Verify task</h2>
+    <p class="text-muted">Solve the given problem.
+        After that use buttons below to verify your solution. Verification can take several minutes.
+    </p>
+    <div id="dynamicVerifyParameters"></div>
+    <div class="btn-group mb-3" role="group" aria-label="Verify or abort">
+        <button id="verifyTaskButton" type="submit"
+                class="btn btn-outline-success"
+                disabled>
+          <span class="spinner-border-sm{% if being_verified %} spinner-border{% endif %}"
+                role="status"
+                aria-hidden="true"></span>
+            <span>{% if being_verified %}Verifying...{% else %}Verify{% endif %}</span>
+        </button>
+        <button id="abortTaskButton" type="submit"
+                class="btn btn-outline-danger"
+                disabled>
+            <span class="spinner-border-sm" role="status"
+                  aria-hidden="true"></span>
+            <span>Abort</span>
+        </button>
+    </div>
+</div>
+{% endblock custom_validation_form %}
+
+{% block custom_task_validations %}
+<div id="taskValidations" class="mb-3 d-none">
+      <h2 class="mb-3">Checks</h2>
+      <div class="accordion" id="validationsAccordion">
+        {% for item in validations %}
+          {% set item_data = item.get_step_validations_data() %}
+          {% set outer_loop_index = loop.index %}
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed {% if item.steps_passed_ratio >= 1 %}bg-success-subtle
+                {% elif item.steps_passed_ratio >= 0.5 %}bg-warning-subtle
+                {% else %}bg-danger-subtle{% endif %}"
+                type="button" data-bs-toggle="collapse" data-bs-target="#validation-{{ loop.index }}"
+                aria-expanded="false" aria-controls="validation-{{ loop.index }}">Validation {{ loop.index }}</button>
+            </h2>
+            <div id="validation-{{ loop.index }}" class="accordion-collapse collapse"
+              aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#validationsAccordion">
+              <div class="accordion-body" style="white-space: normal;">
+                <div class="accordion" id="step-accordion-{{ loop.index }}">
+                  {% for step_key, step_data in item_data.items()|sort %}
+                    {% set inner_loop_index = loop.index %}
+                    {% set step_value = step_data[0] %}
+                    {% set step_passed = step_data[1] %}
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="step-heading-{{ outer_loop_index }}-{{ inner_loop_index }}">
+                        <button
+                          class="accordion-button collapsed {% if step_passed %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}" type="button" data-bs-toggle="collapse"
+                          data-bs-target="#step-panel-{{ outer_loop_index }}-{{ inner_loop_index }}"
+                          aria-expanded="false"
+                          aria-controls="step-panel-{{ outer_loop_index }}-{{ inner_loop_index }}">{{ step_key }}</button>
+                      </h2>
+                      <div id="step-panel-{{ outer_loop_index }}-{{ inner_loop_index }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="step-heading-{{ outer_loop_index }}-{{ inner_loop_index }}"
+                        data-bs-parent="#step-accordion-{{ outer_loop_index }}">
+                        <div class="accordion-body" style="white-space: pre-wrap;">{{ step_value|safe }}</div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+{% endblock custom_task_validations %}
+
+{% block custom_task_validation_failed %}
+<div id="taskValidationsFailed" class="mb-3 d-none">
+  <div class="alert alert-warning" role="alert">
+    <div>
+      <h4 class="alert-heading">Task verification failed!</h4>
+      <p>
+        During task verification, an error has occurred.
+        Consequently, the task will be terminated, and its associated resources will be
+        removed.</br>
+        Please, try to run the task later. If this message recurs, please get in touch with our support team.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock custom_task_validation_failed %}
+
+{% block destroyment_loader %}
+<div id="destroymentLoader" class="mb-3 d-none">
+    <p class="lead text-muted">Please, wait while the resources are <b>being
+        destroyed</b>. It can take several minutes...</p>
+    <p class="lead text-muted">You will receive confirmation, once the resources
+        have been successfully removed.</p>
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+{% endblock destroyment_loader %}
+
+{% block feedback %}
+<div id="taskFeedback" class="mb-3 d-none">
+    <h2 class="mb-2">Feedback</h2>
+    <form>
+        <fieldset {% if not enable_feedback %} disabled{% endif %}>
+            <div class="mb-2">
+                <div class="mb-3">You can complete the course after submitting
+                    your
+                    feedback. Review will be sent automatically after 5 minutes
+                    (blank) if you do not submit manually.
+                </div>
+                <label for="feedbackScoreInput" class="form-label">Feedback
+                    score</label>
+                <select class="form-select" id="feedbackScoreInput">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option selected value="5">5</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label for="feedbackCommentInput"
+                       class="form-label">Comment:</label>
+                <textarea class="form-control" rows="2"
+                          id="feedbackCommentInput"></textarea>
+            </div>
+            <button id="submitFeedbackButton" type="submit"
+                    class="btn btn-outline-success mb-3">Submit feedback and
+                complete the task
+            </button>
+        </fieldset>
+        <div id="feedbackThank" class="mb-3 d-none">Thank you for your feedback!
+            Your task is marked as completed.
+        </div>
+    </form>
+</div>
+{% endblock feedback %}
+
+{% block restart_task %}
+<div id="restartTask" class="mb-3 d-none">
+      <hr class="mt-4">
+      <!-- Modal -->
+      <div class="modal fade" id="restartTaskModal" tabindex="-1" aria-labelledby="restartTaskModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="position: absolute; bottom: 0; left: 0; right: 0; margin: auto;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="restartTaskModalLabel">Restart Task Confirmation</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">You are about to restart your task. Please note:
+            <ol>
+              <li><b>Resource Reset:</b> Pay attention that task resource naming could be changed.</li>
+              <li><b>New Attempt:</b> Click "Start Task" to begin anew.</li>
+              <li><b>Score: </b> Your current score will be saved till the new task start and updated after start.</li>
+            </ol>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button id="restartTaskButton" type="button" class="btn btn-primary"
+                data-bs-dismiss="modal">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center">
+        <button id="showModalButton" class="mb-3 btn btn-warning w-25" data-bs-toggle="modal"
+          data-bs-target="#restartTaskModal">Restart the task</button>
+      </div>
+</div>
+{% endblock restart_task %}
+
+{% block custom_script %}
+<script>
+    window.dynamicData = {
+  "start_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    }
+  },
+  "verify_params": {
+    "CLI_USAGE_CHECK": {
+      "label": "CLI usage check (the duration of the verification will be extended by 5 minutes to allow for the updating of the CloudTrail logs):",
+      "tag": "input",
+      "attributes": {
+        "class": "form-check-input",
+        "type": "checkbox"
+      },
+      "checked": true
+    },
+    "AWS_REGION": {
+      "label": "Target region:",
+      "tag": "select",
+      "attributes": {
+        "class": "form-select",
+        "area-required": "true",
+        "style": "width: 20%;"
+      },
+      "allowed_values": [
+        "eu-central-1",
+        "us-east-1"
+      ],
+      "required": true
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "label": "Access key:",
+      "tag": "input",
+      "attributes": {
+        "class": "form-control",
+        "type": "text",
+        "placeholder": "e.g. AKIA..."
+      },
+      "required": true
+    },
+  }
+};
+</script>
+<script src="../static/js/mocks.js"></script>
+<script src="../static/js/helpers.js"></script>
+<script src="../static/js/jtm.js"></script>
+
+{% endblock custom_script %}
